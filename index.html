@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Ujian Sumatif CIDR & VLSM</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Lock selection on exam */
+        .user-select-none {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col user-select-none" oncontextmenu="return false;">
+
+    <!-- APP CONTAINER -->
+    <div id="app" class="flex-1 flex flex-col">
+
+        <!-- HEADER TOPBAR -->
+        <header class="bg-brand-900 text-white shadow-md no-print sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                        <i class="fa-solid fa-network-wired text-xl text-yellow-400"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base md:text-lg leading-tight">CBT SUMATIF CIDR & VLSM</h1>
+                        <p class="text-xs text-brand-100">Teknik Komputer & Jaringan - Kelas C (/24 - /30)</p>
+                    </div>
+                </div>
+
+                <!-- Admin & Status Controls -->
+                <div class="flex items-center space-x-2">
+                    <button id="btnSwitchMode" onclick="toggleAdminModal()" class="bg-brand-700 hover:bg-brand-600 px-3 py-1.5 rounded-md text-xs font-semibold flex items-center space-x-1 transition">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span class="hidden sm:inline">Panel Admin</span>
+                    </button>
+                    <div id="userInfoHeader" class="hidden flex items-center bg-brand-800 px-3 py-1 rounded-md text-xs">
+                        <i class="fa-solid fa-user-circle mr-1.5 text-brand-100"></i>
+                        <span id="headerStudentName" class="font-medium">Siswa</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN VIEW ENGINE -->
+        <main class="flex-1 flex flex-col">
+
+            <!-- 1. LOGIN VIEW -->
+            <section id="viewLogin" class="flex-1 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 md:p-8 space-y-6">
+                    <div class="text-center space-y-2">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-50 rounded-full text-brand-600 mb-2">
+                            <i class="fa-solid fa-laptop-code text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Masuk Ujian CBT</h2>
+                        <p class="text-xs text-slate-500">Masukkan Username & Password dari Kartu Ujian Anda</p>
+                    </div>
+
+                    <form onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username / NISN</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="loginUsername" required placeholder="Contoh: USR001" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-key"></i></span>
+                                <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition">
+                            </div>
+                        </div>
+                        <div id="loginAlert" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg flex items-center">
+                            <i class="fa-solid fa-circle-exclamation mr-2 text-base"></i>
+                            <span id="loginAlertText">Username atau Password salah!</span>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
+                            <span>Mulai Konfirmasi Ujian</span>
+                            <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </button>
+                    </form>
+
+                    <div class="pt-4 border-t border-slate-100 text-center">
+                        <button onclick="toggleAdminModal()" class="text-xs text-brand-600 hover:underline font-medium">
+                            <i class="fa-solid fa-lock mr-1"></i> Mode Guru / Administrator
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. CONFIRMATION VIEW -->
+            <section id="viewConfirm" class="hidden flex-1 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg p-6 md:p-8 space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">Konfirmasi Peserta</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-2">Periksa Data Diri Anda</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <p class="text-slate-400">Nama Lengkap:</p>
+                            <p id="confName" class="font-bold text-sm text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400">Username:</p>
+                            <p id="confUsername" class="font-bold text-sm text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400">Kelas / Jurusan:</p>
+                            <p id="confClass" class="font-bold text-sm text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400">Jumlah Soal / Waktu:</p>
+                            <p class="font-bold text-sm text-slate-800">25 Soal / 45 Menit</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-800 space-y-2">
+                        <p class="font-bold flex items-center"><i class="fa-solid fa-shield-halved mr-1.5 text-blue-600"></i> Aturan Tata Tertib Ujian:</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>Ujian akan otomatis mengunci layar (*Fullscreen Mode*).</li>
+                            <li>Dilarang keras keluar dari tab, membuka browser lain, atau minimize window.</li>
+                            <li>Pelanggaran tab melebihi 3 kali akan mengunci ujian secara otomatis!</li>
+                            <li>Pastikan koneksi stabil saat menekan tombol Kirim Jawaban.</li>
+                        </ul>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button onclick="logoutSiswa()" class="w-1/3 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 text-xs transition">Batal</button>
+                        <button onclick="startExam()" class="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg text-xs transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-play"></i>
+                            <span>MULAI KERJAKAN NOW</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. EXAM CBT ENGINE VIEW -->
+            <section id="viewExam" class="hidden flex-1 flex flex-col max-w-7xl w-full mx-auto p-2 sm:p-4">
+                
+                <!-- EXAM BAR INFO -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3 mb-3 flex flex-wrap items-center justify-between gap-3 no-print">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm" id="currentQuestionNumIndicator">1</span>
+                        <div>
+                            <p class="text-xs text-slate-400">Soal Ke-</p>
+                            <p class="text-xs font-bold text-slate-700"><span id="examProgressCount">1</span> dari 25 Soal</p>
+                        </div>
+                    </div>
+
+                    <!-- TIMER DISPLAY -->
+                    <div class="bg-slate-900 text-white px-4 py-1.5 rounded-lg flex items-center space-x-2 font-mono">
+                        <i class="fa-solid fa-clock text-amber-400 animate-pulse"></i>
+                        <span class="text-xs text-slate-400 uppercase">Sisa Waktu:</span>
+                        <span id="timerDisplay" class="font-bold text-sm md:text-base text-yellow-300">45:00</span>
+                    </div>
+
+                    <!-- VIOLATION WARNING COUNTER -->
+                    <div class="bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600 text-xs"></i>
+                        <span class="text-xs text-rose-800 font-medium">Pelanggaran: <strong id="violationCount" class="text-rose-900">0</strong>/3</span>
+                    </div>
+
+                    <button onclick="toggleGridModal()" class="md:hidden bg-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 flex items-center space-x-1">
+                        <i class="fa-solid fa-th"></i>
+                        <span>Navigasi Soal</span>
+                    </button>
+                </div>
+
+                <!-- MAIN QUESTION & NAVIGATION LAYOUT -->
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                    
+                    <!-- QUESTION PANEL (3 COLS) -->
+                    <div class="md:col-span-3 bg-white rounded-xl shadow-md border border-slate-200 flex flex-col justify-between p-4 sm:p-6 min-h-[480px]">
+                        <div>
+                            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                                <span id="questionCategory" class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-brand-50 text-brand-700">MUDAH</span>
+                                <span id="questionPoint" class="text-xs text-slate-400">Bobot: 4 Poin</span>
+                            </div>
+
+                            <!-- QUESTION TEXT -->
+                            <div id="questionText" class="text-sm md:text-base font-medium text-slate-800 mb-6 leading-relaxed">
+                                Memuat Soal...
+                            </div>
+
+                            <!-- OPTIONS CONTAINER -->
+                            <div id="optionsContainer" class="space-y-3">
+                                <!-- Dynamic Options A-E -->
+                            </div>
+                        </div>
+
+                        <!-- CONTROL NAVIGATION BUTTONS -->
+                        <div class="pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 mt-6">
+                            <button id="btnPrev" onclick="navigateQuestion(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs flex items-center space-x-1 transition disabled:opacity-40">
+                                <i class="fa-solid fa-chevron-left"></i>
+                                <span>Sebelumnya</span>
+                            </button>
+
+                            <button id="btnDoubt" onclick="toggleDoubtState()" class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold rounded-lg text-xs flex items-center space-x-1 transition">
+                                <i class="fa-solid fa-flag"></i>
+                                <span id="btnDoubtText">Ragu-Ragu</span>
+                            </button>
+
+                            <button id="btnNext" onclick="navigateQuestion(1)" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg text-xs flex items-center space-x-1 transition">
+                                <span>Berikutnya</span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                            
+                            <button id="btnSubmitExam" onclick="confirmSubmitExam()" class="hidden px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center space-x-1 shadow-md transition">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim Jawaban</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SIDEBAR QUESTION GRID (DESKTOP 1 COL) -->
+                    <div class="hidden md:block bg-white rounded-xl shadow-md border border-slate-200 p-4">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+                            <span>Navigator Soal</span>
+                            <i class="fa-solid fa-grip text-slate-400"></i>
+                        </h3>
+                        <div id="questionGridDesktop" class="grid grid-cols-5 gap-2">
+                            <!-- Dynamic 1-25 Grid Buttons -->
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] space-y-1.5 text-slate-500">
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 bg-brand-600 rounded"></span><span>Dijawab</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 bg-amber-400 rounded"></span><span>Ragu-Ragu</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 bg-slate-200 border border-slate-300 rounded"></span><span>Belum Dijawab</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 4. RESULT VIEW (INSTANT SCORE) -->
+            <section id="viewResult" class="hidden flex-1 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl p-6 md:p-8 space-y-6">
+                    <div class="text-center space-y-2 border-b border-slate-100 pb-6">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mb-2">
+                            <i class="fa-solid fa-trophy text-4xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Ujian Berhasil Diselesaikan!</h2>
+                        <p class="text-xs text-slate-500">Hasil pengerjaan Ujian Sumatif CIDR & VLSM Anda telah dicatat.</p>
+                    </div>
+
+                    <!-- SCORE SUMMARY CARD -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Nilai Akhir</p>
+                            <p id="resScore" class="text-2xl md:text-3xl font-extrabold text-brand-600">0</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Jawaban Benar</p>
+                            <p id="resCorrect" class="text-2xl md:text-3xl font-extrabold text-emerald-600">0</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Jawaban Salah</p>
+                            <p id="resWrong" class="text-2xl md:text-3xl font-extrabold text-rose-600">0</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Predikat</p>
+                            <p id="resGrade" class="text-xl md:text-2xl font-bold text-amber-600">-</p>
+                        </div>
+                    </div>
+
+                    <!-- STUDENT DATA DETAIL -->
+                    <div class="bg-slate-50 p-4 rounded-xl text-xs space-y-1 text-slate-600 border border-slate-200">
+                        <p><strong>Nama:</strong> <span id="resStudentName">-</span></p>
+                        <p><strong>Username:</strong> <span id="resStudentUser">-</span></p>
+                        <p><strong>Waktu Selesai:</strong> <span id="resTimestamp">-</span></p>
+                        <p><strong>Status Sinkron Database:</strong> <span id="resSyncStatus" class="font-bold text-amber-600">Menyinkronkan...</span></p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button onclick="printSelfResult()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs flex items-center justify-center space-x-2 shadow transition">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Cetak Hasil Pengerjaan</span>
+                        </button>
+                        <button onclick="logoutSiswa()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg text-xs flex items-center justify-center space-x-2 shadow transition">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Keluar Aplikasi</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. ADMIN DASHBOARD VIEW -->
+            <section id="viewAdmin" class="hidden flex-1 p-4 max-w-7xl w-full mx-auto space-y-6">
+                <!-- ADMIN TOP MENU -->
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-brand-600"></i>
+                            <span>Panel Guru & Administrator CBT</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Kelola Siswa, Kartu Ujian, Reset Status, dan Monitoring Nilai Realtime</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="downloadCSVTemplate()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-lg transition border border-slate-300 flex items-center space-x-1">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Template CSV</span>
+                        </button>
+                        <button onclick="openModalAddStudent()" class="px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Tambah Siswa</span>
+                        </button>
+                        <button onclick="printAllCards()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-id-card"></i>
+                            <span>Cetak Kartu Ujian</span>
+                        </button>
+                        <button onclick="printCollectiveResults()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-file-invoice"></i>
+                            <span>Cetak Rekap Nilai</span>
+                        </button>
+                        <button onclick="closeAdmin()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Tutup Admin</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONFIG & INTEGRATION PANEL -->
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 p-4 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i class="fa-solid fa-database text-brand-600"></i>
+                        <span>Integrasi Database Google Sheets & GAS (Google Apps Script)</span>
+                    </h3>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="gasUrlInput" placeholder="Masukkan Web App URL Apps Script (https://script.google.com/macros/s/AKfycbx8VJilJguvnNoplK93aTOpBbvqKVyAbCDvZAkkHOOLpNjizkujr4BOInMp4PccK-k/exec)" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-brand-500">
+                        <button onclick="saveGasUrl()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition">Simpan URL</button>
+                        <button onclick="toggleGasGuideModal()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid fa-code"></i>
+                            <span>Kode GAS (.gs)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BULK UPLOAD PANEL -->
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 p-4 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Unggah Daftar Siswa Kolektif (CSV)</h3>
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <button onclick="handleCSVUpload()" class="w-full sm:w-auto px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg transition flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-file-import"></i>
+                            <span>Proses Import CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STUDENT TABLE & MONITORING -->
+                <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Daftar Peserta Ujian (<span id="studentCountText">0</span> Siswa)</h3>
+                        <button onclick="generateAllCredentials()" class="text-xs text-brand-600 hover:underline font-bold">
+                            <i class="fa-solid fa-rotate"></i> Auto-Generate User & Pass Kredo
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-50 text-slate-700 font-bold uppercase border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Password</th>
+                                    <th class="p-3">Nama Siswa</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3 text-center">Status Ujian</th>
+                                    <th class="p-3 text-center">Nilai</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                                <!-- Dynamic Student Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MOBILE GRID MODAL -->
+    <div id="modalGrid" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-sm text-slate-800">Navigator Soal Ujian</h3>
+                <button onclick="toggleGridModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="questionGridMobile" class="grid grid-cols-5 gap-2 max-h-64 overflow-y-auto p-1">
+                <!-- Mobile Grid Buttons -->
+            </div>
+            <button onclick="toggleGridModal()" class="w-full py-2 bg-brand-600 text-white font-bold rounded-lg text-xs">Tutup</button>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="modalAdminAuth" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-xs p-6 space-y-4 text-center">
+            <div class="inline-flex p-3 bg-brand-50 text-brand-600 rounded-full">
+                <i class="fa-solid fa-lock text-2xl"></i>
+            </div>
+            <h3 class="font-bold text-base text-slate-900">Akses Admin Guru</h3>
+            <input type="password" id="adminPassInput" placeholder="Masukkan Password Admin" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-center outline-none focus:ring-2 focus:ring-brand-500">
+            <div class="flex space-x-2">
+                <button onclick="toggleAdminModal()" class="w-1/2 py-2 border border-slate-300 rounded-lg text-xs font-semibold">Batal</button>
+                <button onclick="authenticateAdmin()" class="w-1/2 py-2 bg-brand-600 text-white font-bold rounded-lg text-xs">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD SINGLE STUDENT MODAL -->
+    <div id="modalAddStudent" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
+            <h3 class="font-bold text-base text-slate-900 border-b pb-2">Tambah Data Siswa</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-700">Nama Lengkap</label>
+                    <input type="text" id="addName" class="w-full px-3 py-2 border rounded-lg mt-1 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700">Kelas / Jurusan</label>
+                    <input type="text" id="addClass" value="X TKJ 1" class="w-full px-3 py-2 border rounded-lg mt-1 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700">Username (Opsional)</label>
+                    <input type="text" id="addUser" placeholder="Otomatis jika kosong" class="w-full px-3 py-2 border rounded-lg mt-1 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700">Password (Opsional)</label>
+                    <input type="text" id="addPass" placeholder="Otomatis jika kosong" class="w-full px-3 py-2 border rounded-lg mt-1 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeModalAddStudent()" class="w-1/2 py-2 border rounded-lg text-xs font-semibold">Batal</button>
+                <button onclick="saveSingleStudent()" class="w-1/2 py-2 bg-brand-600 text-white font-bold rounded-lg text-xs">Simpan Siswa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAS KODE GUIDE MODAL -->
+    <div id="modalGasGuide" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-base text-slate-900">Kode Google Apps Script (GAS) Backend</h3>
+                <button onclick="toggleGasGuideModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-slate-600">Salin kode di bawah ini ke Editor Google Apps Script pada Google Sheets Anda, lalu Publish sebagai <strong>Web App (Access: Anyone)</strong>.</p>
+            <textarea readonly id="gasCodeText" class="w-full flex-1 p-3 bg-slate-900 text-emerald-400 font-mono text-[11px] rounded-xl outline-none min-h-[250px]"></textarea>
+            <div class="flex justify-end space-x-2">
+                <button onclick="copyGasCode()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg">Copy Kode GS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINT CONTAINER (HIDDEN ON SCREEN, SHOWN ON PRINT) -->
+    <div id="printContainer" class="hidden print-only p-8 text-black bg-white">
+        <!-- Dynamic Content injected via JS for Cards / Collective Results / Self Results -->
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        // ==========================================
+        // 1. BANK SOAL (50 SOAL BALANCED CIDR & VLSM)
+        // ==========================================
+        const BANK_SOAL = [
+            // MUDAH (1-10)
+            {
+                id: 1, level: "MUDAH", point: 4,
+                q: "Sebuah subnet memiliki prefix /24. Berapakah jumlah total alamat IP (termasuk Network & Broadcast) yang tersedia pada prefix tersebut?",
+                a: "Jumlah total alamat IP tersedia adalah 256",
+                b: "Jumlah total alamat IP tersedia adalah 128",
+                c: "Jumlah total alamat IP tersedia adalah 512",
+                d: "Jumlah total alamat IP tersedia adalah 64",
+                e: "Jumlah total alamat IP tersedia adalah 32",
+                keys: "A"
+            },
+            {
+                id: 2, level: "MUDAH", point: 4,
+                q: "Dalam subnetting CIDR Kelas C, berapakah jumlah IP usable (yang dapat digunakan untuk host) pada subnet prefix /24?",
+                a: "Host usable yang dapat dipakai sebanyak 252 host",
+                b: "Host usable yang dapat dipakai sebanyak 254 host",
+                c: "Host usable yang dapat dipakai sebanyak 255 host",
+                d: "Host usable yang dapat dipakai sebanyak 256 host",
+                e: "Host usable yang dapat dipakai sebanyak 128 host",
+                keys: "B"
+            },
+            {
+                id: 3, level: "MUDAH", point: 4,
+                q: "Berapakah nilai Subnet Mask standar dalam notasi desimal bertitik untuk CIDR prefix /25?",
+                a: "Subnet mask bertitik adalah 255.255.255.192",
+                b: "Subnet mask bertitik adalah 255.255.255.224",
+                c: "Subnet mask bertitik adalah 255.255.255.128",
+                d: "Subnet mask bertitik adalah 255.255.255.240",
+                e: "Subnet mask bertitik adalah 255.255.255.248",
+                keys: "C"
+            },
+            {
+                id: 4, level: "MUDAH", point: 4,
+                q: "Prefix manakah di bawah ini yang paling efisien digunakan untuk menyambungkan titik link point-to-point antara 2 router MikroTik?",
+                a: "Prefix paling efisien digunakan adalah /28",
+                b: "Prefix paling efisien digunakan adalah /29",
+                c: "Prefix paling efisien digunakan adalah /30",
+                d: "Prefix paling efisien digunakan adalah /27",
+                e: "Prefix paling efisien digunakan adalah /26",
+                keys: "C"
+            },
+            {
+                id: 5, level: "MUDAH", point: 4,
+                q: "Berapa jumlah total alamat IP yang dialokasikan dalam satu blog subnet CIDR /30?",
+                a: "Total alokasi alamat IP berjumlah 2 IP",
+                b: "Total alokasi alamat IP berjumlah 4 IP",
+                c: "Total alokasi alamat IP berjumlah 8 IP",
+                d: "Total alokasi alamat IP berjumlah 16 IP",
+                e: "Total alokasi alamat IP berjumlah 32 IP",
+                keys: "B"
+            },
+            {
+                id: 6, level: "MUDAH", point: 4,
+                q: "Dalam alokasi alamat IP subnetting, dua alamat IP tidak dapat dikonfigurasikan ke perangkat host karena digunakan sebagai:",
+                a: "Digunakan untuk IP Network dan IP Broadcast",
+                b: "Digunakan untuk IP Gateway dan IP DNS Server",
+                c: "Digunakan untuk IP Loopback dan IP DHCP Server",
+                d: "Digunakan untuk IP Public dan IP Private Mask",
+                e: "Digunakan untuk IP Multicast dan IP Subnet Mask",
+                keys: "A"
+            },
+            {
+                id: 7, level: "MUDAH", point: 4,
+                q: "Berapakah subnet mask desimal bertitik dari CIDR /30?",
+                a: "Nilai subnet mask desimal adalah 255.255.255.240",
+                b: "Nilai subnet mask desimal adalah 255.255.255.248",
+                c: "Nilai subnet mask desimal adalah 255.255.255.252",
+                d: "Nilai subnet mask desimal adalah 255.255.255.254",
+                e: "Nilai subnet mask desimal adalah 255.255.255.224",
+                keys: "C"
+            },
+            {
+                id: 8, level: "MUDAH", point: 4,
+                q: "Prefix /26 membagi satu blok jaringan Kelas C (/24) menjadi berapa jumlah Subnet?",
+                a: "Membagi jaringan menjadi 2 jaringan subnet",
+                b: "Membagi jaringan menjadi 4 jaringan subnet",
+                c: "Membagi jaringan menjadi 8 jaringan subnet",
+                d: "Membagi jaringan menjadi 16 jaringan subnet",
+                e: "Membagi jaringan menjadi 32 jaringan subnet",
+                keys: "B"
+            },
+            {
+                id: 9, level: "MUDAH", point: 4,
+                q: "Berapakah subnet mask desimal bertitik untuk prefix /27?",
+                a: "Hasil subnet mask bertitik adalah 255.255.255.128",
+                b: "Hasil subnet mask bertitik adalah 255.255.255.192",
+                c: "Hasil subnet mask bertitik adalah 255.255.255.224",
+                d: "Hasil subnet mask bertitik adalah 255.255.255.240",
+                e: "Hasil subnet mask bertitik adalah 255.255.255.248",
+                keys: "C"
+            },
+            {
+                id: 10, level: "MUDAH", point: 4,
+                q: "Berapakah jumlah host usable (dapat dipakai) pada subnet berkode prefix /29?",
+                a: "Jumlah host yang dapat dipakai sebanyak 2 host",
+                b: "Jumlah host yang dapat dipakai sebanyak 6 host",
+                c: "Jumlah host yang dapat dipakai sebanyak 8 host",
+                d: "Jumlah host yang dapat dipakai sebanyak 14 host",
+                e: "Jumlah host yang dapat dipakai sebanyak 30 host",
+                keys: "B"
+            },
+
+            // SEDANG (11-25)
+            {
+                id: 11, level: "SEDANG", point: 4,
+                q: "Diberikan IP 192.168.10.0/26. Manakah yang merupakan alamat IP Broadcast dari subnet pertama tersebut?",
+                a: "Alamat broadcast subnet adalah 192.168.10.31",
+                b: "Alamat broadcast subnet adalah 192.168.10.63",
+                c: "Alamat broadcast subnet adalah 192.168.10.127",
+                d: "Alamat broadcast subnet adalah 192.168.10.64",
+                e: "Alamat broadcast subnet adalah 192.168.10.255",
+                keys: "B"
+            },
+            {
+                id: 12, level: "SEDANG", point: 4,
+                q: "Jika Anda mengonfigurasi IP Address 192.168.1.100/25, berada pada range IP usable berapakah IP komputer tersebut?",
+                a: "Berada pada range usable 192.168.1.1 - 192.168.1.126",
+                b: "Berada pada range usable 192.168.1.129 - 192.168.1.254",
+                c: "Berada pada range usable 192.168.1.65 - 192.168.1.126",
+                d: "Berada pada range usable 192.168.1.96 - 192.168.1.127",
+                e: "Berada pada range usable 192.168.1.1 - 192.168.1.254",
+                keys: "A"
+            },
+            {
+                id: 13, level: "SEDANG", point: 4,
+                q: "Berapakah IP Network dari alamat host 192.168.5.200/27?",
+                a: "Alamat IP Network adalah 192.168.5.192",
+                b: "Alamat IP Network adalah 192.168.5.160",
+                c: "Alamat IP Network adalah 192.168.5.128",
+                d: "Alamat IP Network adalah 192.168.5.224",
+                e: "Alamat IP Network adalah 192.168.5.198",
+                keys: "A"
+            },
+            {
+                id: 14, level: "SEDANG", point: 4,
+                q: "Teknisi membutuhkan subnet yang mampu menampung tepat 25 komputer PC. Prefix CIDR manakah yang paling hemat dan efisien?",
+                a: "Prefix yang paling efisien adalah prefix /28",
+                b: "Prefix yang paling efisien adalah prefix /27",
+                c: "Prefix yang paling efisien adalah prefix /26",
+                d: "Prefix yang paling efisien adalah prefix /25",
+                e: "Prefix yang paling efisien adalah prefix /29",
+                keys: "B"
+            },
+            {
+                id: 15, level: "SEDANG", point: 4,
+                q: "Berapakah rentang IP usable yang valid pada subnet 192.168.1.32/28?",
+                a: "Rentang IP usable adalah 192.168.1.33 - 192.168.1.46",
+                b: "Rentang IP usable adalah 192.168.1.32 - 192.168.1.47",
+                c: "Rentang IP usable adalah 192.168.1.33 - 192.168.1.47",
+                d: "Rentang IP usable adalah 192.168.1.34 - 192.168.1.48",
+                e: "Rentang IP usable adalah 192.168.1.31 - 192.168.1.45",
+                keys: "A"
+            },
+            {
+                id: 16, level: "SEDANG", point: 4,
+                q: "Berapakah nilai Subnet Mask desimal dari prefix /28?",
+                a: "Subnet mask desimal tersebut 255.255.255.224",
+                b: "Subnet mask desimal tersebut 255.255.255.240",
+                c: "Subnet mask desimal tersebut 255.255.255.248",
+                d: "Subnet mask desimal tersebut 255.255.255.252",
+                e: "Subnet mask desimal tersebut 255.255.255.192",
+                keys: "B"
+            },
+            {
+                id: 17, level: "SEDANG", point: 4,
+                q: "Sebuah jaringan menggunakan IP 192.168.4.67 dengan subnet mask 255.255.255.192. Berapakah ID Subnet/Network-nya?",
+                a: "Nilai Network ID subnet adalah 192.168.4.0",
+                b: "Nilai Network ID subnet adalah 192.168.4.64",
+                c: "Nilai Network ID subnet adalah 192.168.4.128",
+                d: "Nilai Network ID subnet meupakan 192.168.4.32",
+                e: "Nilai Network ID subnet adalah 192.168.4.96",
+                keys: "B"
+            },
+            {
+                id: 18, level: "SEDANG", point: 4,
+                q: "Jika sebuah kantor butuh memasang 12 IP kamera CCTV pada satu segmen, prefix CIDR minimum manakah yang tepat?",
+                a: "Prefix minimum yang sesuai adalah CIDR /29",
+                b: "Prefix minimum yang sesuai adalah CIDR /28",
+                c: "Prefix minimum yang sesuai adalah CIDR /27",
+                d: "Prefix minimum yang sesuai adalah CIDR /30",
+                e: "Prefix minimum yang sesuai adalah CIDR /26",
+                keys: "B"
+            },
+            {
+                id: 19, level: "SEDANG", point: 4,
+                q: "Berapa blok subnet yang terbentuk jika IP Kelas C /24 di-subnetting menggunakan prefix /28?",
+                a: "Jumlah subnet yang terbentuk adalah 8 Subnet",
+                b: "Jumlah subnet yang terbentuk adalah 16 Subnet",
+                c: "Jumlah subnet yang terbentuk adalah 32 Subnet",
+                d: "Jumlah subnet yang terbentuk adalah 4 Subnet",
+                e: "Jumlah subnet yang terbentuk adalah 64 Subnet",
+                keys: "B"
+            },
+            {
+                id: 20, level: "SEDANG", point: 4,
+                q: "Manakah IP Address di bawah ini yang tergolong IP Broadcast pada subnet 192.168.2.128/26?",
+                a: "IP Broadcast subnet adalah 192.168.2.191",
+                b: "IP Broadcast subnet adalah 192.168.2.255",
+                c: "IP Broadcast subnet adalah 192.168.2.127",
+                d: "IP Broadcast subnet adalah 192.168.2.192",
+                e: "IP Broadcast subnet adalah 192.168.2.160",
+                keys: "A"
+            },
+            {
+                id: 21, level: "SEDANG", point: 4,
+                q: "Sebuah Interface Router dipasang IP 192.168.7.254/25. Berapakah IP Broadcast dari segmen tersebut?",
+                a: "IP Broadcast segmen adalah 192.168.7.127",
+                b: "IP Broadcast segmen adalah 192.168.7.255",
+                c: "IP Broadcast segmen adalah 192.168.7.254",
+                d: "IP Broadcast segmen adalah 192.168.7.191",
+                e: "IP Broadcast segmen adalah 192.168.7.224",
+                keys: "B"
+            },
+            {
+                id: 22, level: "SEDANG", point: 4,
+                q: "Apa yang dimaksud dengan metode VLSM (Variable Length Subnet Mask) dalam perancangan IP Address?",
+                a: "Teknik membagi subnet dengan panjang mask bervariasi",
+                b: "Teknik membagi IP address dengan subnet mask yang sama",
+                c: "Metode mengubah IP private menjadi alamat IP public",
+                d: "Prosedur mengabungkan dua buah router tanpa IP gateway",
+                e: "Metode alokasi IP otomatis berbasis server DHCP pusat",
+                keys: "A"
+            },
+            {
+                id: 23, level: "SEDANG", point: 4,
+                q: "Dalam alokasi VLSM, aturan utama urutan pengalokasian subnet yang benar adalah:",
+                a: "Mengurutkan kebutuhan dari host terkecil ke terbesar",
+                b: "Mengurutkan kebutuhan dari host terbesar ke terkecil",
+                c: "Mengalokasikan berdasarkan nomor urut ruangan lab",
+                d: "Mengalokasikan secara acak sesuai selera teknisi",
+                e: "Mengurutkan berdasarkan alamat MAC address terkecil",
+                keys: "B"
+            },
+            {
+                id: 24, level: "SEDANG", point: 4,
+                q: "Berapakah jumlah host usable maksimal yang dapat ditampung oleh subnet CIDR /25?",
+                a: "Kapasitas host usable maksimal adalah 126 host",
+                b: "Kapasitas host usable maksimal adalah 128 host",
+                c: "Kapasitas host usable maksimal adalah 62 host",
+                d: "Kapasitas host usable maksimal adalah 254 host",
+                e: "Kapasitas host usable maksimal adalah 30 host",
+                keys: "A"
+            },
+            {
+                id: 25, level: "SEDANG", point: 4,
+                q: "Manakah yang merupakan IP Pertama yang usable pada subnet 192.168.10.64/27?",
+                a: "IP Pertama usable adalah alamat 192.168.10.65",
+                b: "IP Pertama usable adalah alamat 192.168.10.64",
+                c: "IP Pertama usable adalah alamat 192.168.10.66",
+                d: "IP Pertama usable adalah alamat 192.168.10.1",
+                e: "IP Pertama usable adalah alamat 192.168.10.95",
+                keys: "A"
+            },
+
+            // SANGAT RUMIT (26-38)
+            {
+                id: 26, level: "RUMIT", point: 4,
+                q: "Sebuah alamat host tercatat 192.168.8.140/27. Tentukan berturut-turut Network ID dan Broadcast ID dari segmen tersebut!",
+                a: "Network ID: 192.168.8.128 dan Broadcast: 192.168.8.159",
+                b: "Network ID: 192.168.8.128 dan Broadcast: 192.168.8.160",
+                c: "Network ID: 192.168.8.96 dan Broadcast: 192.168.8.127",
+                d: "Network ID: 192.168.8.128 dan Broadcast: 192.168.8.143",
+                e: "Network ID: 192.168.8.130 dan Broadcast: 192.168.8.158",
+                keys: "A"
+            },
+            {
+                id: 27, level: "RUMIT", point: 4,
+                q: "Terdapat IP Address 192.168.3.45/29. Apakah alamat IP tersebut tergolong IP usable, Network, atau Broadcast?",
+                a: "Terhitung sebagai IP Network dari subnet terkait",
+                b: "Terhitung sebagai IP Usable yang dapat dipasang",
+                c: "Terhitung sebagai IP Broadcast dari subnet terkait",
+                d: "Terhitung sebagai IP Loopback internal interface",
+                e: "Terhitung sebagai IP Wildcard pada router Cisco",
+                keys: "B"
+            },
+            {
+                id: 28, level: "RUMIT", point: 4,
+                q: "Hasil analisis IP menunjukkan sebuah host memiliki IP 192.168.1.15/28. Mengapa IP tersebut TIDAK BISA dipasang ke PC komputer?",
+                a: "Karena IP 192.168.1.15 merupakan IP Broadcast subnet",
+                b: "Karena IP 192.168.1.15 merupakan IP Network subnet",
+                c: "Karena subnet mask /28 tidak mendukung komputer PC",
+                d: "Karena IP tersebut tergolong IP Public milik ISP",
+                e: "Karena IP tersebut merupakan IP Gateway utama router",
+                keys: "A"
+            },
+            {
+                id: 29, level: "RUMIT", point: 4,
+                q: "Diberikan IP Blok 192.168.100.0/24. Subnet ke-3 jika dibagi menjadi prefix /27 (subnet dihitung dari ke-1: index 0) memiliki Network ID:",
+                a: "Network ID subnet ke-3 adalah 192.168.100.64",
+                b: "Network ID subnet ke-3 adalah 192.168.100.96",
+                c: "Network ID subnet ke-3 adalah 192.168.100.32",
+                d: "Network ID subnet ke-3 adalah 192.168.100.128",
+                e: "Network ID subnet ke-3 adalah 192.168.100.160",
+                keys: "A"
+            },
+            {
+                id: 30, level: "RUMIT", point: 4,
+                q: "Dua buah komputer diberi IP A=192.168.1.30/27 dan B=192.168.1.33/27. Apakah kedua komputer berada dalam satu segmen subnet yang sama?",
+                a: "Ya, keduanya berada pada satu subnet 192.168.1.0",
+                b: "Tidak, A di subnet .0/27 sedangkan B di subnet .32/27",
+                c: "Ya, keduanya berada pada satu subnet 192.168.1.32",
+                d: "Tidak, karena prefix /27 hanya muat untuk 16 host",
+                e: "Ya, karena keduanya sama-sama memakai prefix /27",
+                keys: "B"
+            },
+            {
+                id: 31, level: "RUMIT", point: 4,
+                q: "Berapakah IP Terakhir yang usable (terakhir bisa dipakai host) dari subnet 192.168.5.192/26?",
+                a: "IP Usable terakhir adalah alamat 192.168.5.254",
+                b: "IP Usable terakhir adalah alamat 192.168.5.255",
+                c: "IP Usable terakhir adalah alamat 192.168.5.253",
+                d: "IP Usable terakhir adalah alamat 192.168.5.224",
+                e: "IP Usable terakhir adalah alamat 192.168.5.223",
+                keys: "A"
+            },
+            {
+                id: 32, level: "RUMIT", point: 4,
+                q: "Sebuah jaringan /24 dipecah menggunakan VLSM. Subnet A membutuhkan 100 host (/25). Berapakah Network ID subnet berikutnya yang masih kosong?",
+                a: "Network ID subnet berikutnya adalah 192.168.x.128",
+                b: "Network ID subnet berikutnya adalah 192.168.x.64",
+                c: "Network ID subnet berikutnya adalah 192.168.x.192",
+                d: "Network ID subnet berikutnya adalah 192.168.x.256",
+                e: "Network ID subnet berikutnya adalah 192.168.x.101",
+                keys: "A"
+            },
+            {
+                id: 33, level: "RUMIT", point: 4,
+                q: "Jika subnet mask sebuah PC adalah 255.255.255.248, berapakah jumlah IP yang terbuang (tidak usable) per subnet-nya?",
+                a: "Jumlah IP terbuang sebanyak 2 IP (Net & Bcst)",
+                b: "Jumlah IP terbuang sebanyak 6 IP per subnet",
+                c: "Jumlah IP terbuang sebanyak 8 IP per subnet",
+                d: "Jumlah IP terbuang sebanyak 4 IP per subnet",
+                e: "Jumlah IP terbuang sebanyak 1 IP per subnet",
+                keys: "A"
+            },
+            {
+                id: 34, level: "RUMIT", point: 4,
+                q: "Manakah pasangan IP Address dan Subnet Mask di bawah ini yang VALID sebagai IP Host yang bisa terkoneksi?",
+                a: "IP 192.168.1.64 dengan subnet mask 255.255.255.192",
+                b: "IP 192.168.1.65 dengan subnet mask 255.255.255.192",
+                c: "IP 192.168.1.127 dengan subnet mask 255.255.255.192",
+                d: "IP 192.168.1.255 dengan subnet mask 255.255.255.128",
+                e: "IP 192.168.1.0 dengan subnet mask 255.255.255.240",
+                keys: "B"
+            },
+            {
+                id: 35, level: "RUMIT", point: 4,
+                q: "Berapakah nilai pembagi (block size / interval) subnet untuk CIDR prefix /29?",
+                a: "Ukuran block size interval subnet tersebut adalah 8",
+                b: "Ukuran block size interval subnet tersebut adalah 16",
+                c: "Ukuran block size interval subnet tersebut adalah 32",
+                d: "Ukuran block size interval subnet tersebut adalah 4",
+                e: "Ukuran block size interval subnet tersebut adalah 64",
+                keys: "A"
+            },
+            {
+                id: 36, level: "RUMIT", point: 4,
+                q: "Sebuah router memiliki 4 interface point-to-point (/30). Berapa total IP Address yang terpakai untuk seluruh interface tersebut?",
+                a: "Total IP Address yang terpakai sebanyak 16 IP",
+                b: "Total IP Address yang terpakai sebanyak 8 IP",
+                c: "Total IP Address yang terpakai sebanyak 32 IP",
+                d: "Total IP Address yang terpakai sebanyak 24 IP",
+                e: "Total IP Address yang terpakai sebanyak 12 IP",
+                keys: "A"
+            },
+            {
+                id: 37, level: "RUMIT", point: 4,
+                q: "Subnetting /27 menghasilkan block size 32. Jika IP Network pertama 192.168.10.0, berapakah IP Network untuk subnet ke-5?",
+                a: "IP Network untuk subnet ke-5 adalah 192.168.10.128",
+                b: "IP Network untuk subnet ke-5 adalah 192.168.10.160",
+                c: "IP Network untuk subnet ke-5 adalah 192.168.10.96",
+                d: "IP Network untuk subnet ke-5 adalah 192.168.10.144",
+                e: "IP Network untuk subnet ke-5 adalah 192.168.10.192",
+                keys: "A"
+            },
+            {
+                id: 38, level: "RUMIT", point: 4,
+                q: "Jika Anda membagi subnet 192.168.50.0/24 menjadi 8 bagian subnet yang sama besar, prefix apakah yang harus digunakan?",
+                a: "Prefix yang harus digunakan adalah CIDR /27",
+                b: "Prefix yang harus digunakan adalah CIDR /26",
+                c: "Prefix yang harus digunakan adalah CIDR /28",
+                d: "Prefix yang harus digunakan adalah CIDR /29",
+                e: "Prefix yang meupakan pilihan terbaik /30",
+                keys: "A"
+            },
+
+            // STUDI KASUS (39-50)
+            {
+                id: 39, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus Lab Komputer] Sekolah merancang Lab TKJ baru dengan 58 unit komputer client & 1 printer server (Total 59 host). Prefix manakah yang paling efisien?",
+                a: "Prefix paling efisien digunakan adalah prefix /26",
+                b: "Prefix paling efisien digunakan adalah prefix /27",
+                c: "Prefix paling efisien digunakan adalah prefix /25",
+                d: "Prefix paling efisien digunakan adalah prefix /28",
+                e: "Prefix paling efisien digunakan adalah prefix /24",
+                keys: "A"
+            },
+            {
+                id: 40, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus Kantor] Kantor cabang butuh alokasi 14 PC Pegawai dan 1 IP Router Gateway (Total 15 IP Usable). Prefix manakah yang paling pas tanpa membuang IP?",
+                a: "Prefix yang paling pas digunakan adalah prefix /27",
+                b: "Prefix yang paling pas digunakan adalah prefix /28",
+                c: "Prefix yang paling pas digunakan adalah prefix /29",
+                d: "Prefix yang paling pas digunakan adalah prefix /26",
+                e: "Prefix yang paling pas digunakan adalah prefix /30",
+                keys: "A"
+            },
+            {
+                id: 41, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus VLSM Gedung] Jaringan utama 192.168.1.0/24 dipecah: Ruang A (50 host), Ruang B (25 host). Berapakah prefix VLSM berturut-turut untuk A dan B?",
+                a: "Prefix berturut-turut adalah /26 untuk A dan /27 untuk B",
+                b: "Prefix berturut-turut adalah /27 untuk A dan /28 untuk B",
+                c: "Prefix berturut-turut adalah /25 untuk A dan /26 untuk B",
+                d: "Prefix berturut-turut adalah /26 untuk A dan /26 untuk B",
+                e: "Prefix berturut-turut adalah /28 untuk A dan /27 untuk B",
+                keys: "A"
+            },
+            {
+                id: 42, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus MikroTik Router] Admin ingin menghubungkan Router Utama ke Switch Core yang menghubungkan 5 Server (Total 6 Host + Gateway). Prefix efisiennya adalah:",
+                a: "Prefix paling hemat efisien adalah prefix /29",
+                b: "Prefix paling hemat efisien adalah prefix /28",
+                c: "Prefix paling hemat efisien adalah prefix /30",
+                d: "Prefix paling hemat efisien adalah prefix /27",
+                e: "Prefix paling hemat efisien adalah prefix /26",
+                keys: "A"
+            },
+            {
+                id: 43, level: "STUDI KASUS", point: 4,
+                q: "[Studi KasusTroubleshooting] Komputer A (192.168.10.33/27) gagal ping ke Komputer B (192.168.10.31/27). Penyebab utama kegagalan jaringan tersebut adalah:",
+                a: "Kedua komputer berada pada subnet jaringan berbeda",
+                b: "Komputer B menggunakan alamat IP broadcast subnet",
+                c: "Subnet mask /27 tidak mendukung koneksi antar PC",
+                d: "IP Komputer A tergolong alamat IP Private lokal",
+                e: "Kabel UTP yang digunakan tidak mendukung ping TCP",
+                keys: "A"
+            },
+            {
+                id: 44, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus ISP Alokasi] ISP memberikan blok IP 192.168.20.0/24. Perusahaan meminta subnet pertama dengan alokasi /26. Berapakah range IP usable bagi perusahaan?",
+                a: "Range usable perusahaan adalah 192.168.20.1 - 192.168.20.62",
+                b: "Range usable perusahaan adalah 192.168.20.0 - 192.168.20.63",
+                c: "Range usable perusahaan adalah 192.168.20.1 - 192.168.20.126",
+                d: "Range usable perusahaan adalah 192.168.20.65 - 192.168.20.126",
+                e: "Range usable perusahaan adalah 192.168.20.33 - 192.168.20.62",
+                keys: "A"
+            },
+            {
+                id: 45, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus VLSM Bertingkat] Blok IP 192.168.1.0/24 di-VLSM. Subnet 1: /25 (192.168.1.0/25). Jika Subnet 2 meminjam blok sisa untuk 30 host, Network ID Subnet 2 adalah:",
+                a: "Network ID Subnet 2 yang benar 192.168.1.128/27",
+                b: "Network ID Subnet 2 yang benar 192.168.1.64/27",
+                c: "Network ID Subnet 2 yang benar 192.168.1.192/27",
+                d: "Network ID Subnet 2 yang benar 192.168.1.128/26",
+                e: "Network ID Subnet 2 yang benar 192.168.1.160/28",
+                keys: "A"
+            },
+            {
+                id: 46, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus Server Farm] Sebuah Data Center membutuhkan subnet khusus untuk 3 unit Server Database. Prefix manakah yang paling efisien tanpa sisa IP berlebih?",
+                a: "Prefix paling efisien Data Center adalah prefix /29",
+                b: "Prefix paling efisien Data Center adalah prefix /30",
+                c: "Prefix paling efisien Data Center adalah prefix /28",
+                d: "Prefix paling efisien Data Center adalah prefix /27",
+                e: "Prefix paling efisien Data Center adalah prefix /26",
+                keys: "A"
+            },
+            {
+                id: 47, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus WiFi Hotspot] Area Cafe ingin menyediakan WiFi untuk 120 pelanggan bersamaan. Subnet mask CIDR Kelas C manakah yang pas?",
+                a: "Subnet mask CIDR yang pas adalah prefix /25",
+                b: "Subnet mask CIDR yang pas adalah prefix /26",
+                c: "Subnet mask CIDR yang pas adalah prefix /24",
+                d: "Subnet mask CIDR yang pas adalah prefix /27",
+                e: "Subnet mask CIDR yang pas adalah prefix /28",
+                keys: "A"
+            },
+            {
+                id: 48, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus Inter-VLAN] Admin membuat VLAN 10 (20 Host) dan VLAN 20 (10 Host). Prefix efisien untuk VLAN 10 dan VLAN 20 berturut-turut adalah:",
+                a: "Prefix yang sesuai adalah /27 untuk VLAN 10 dan /28 untuk VLAN 20",
+                b: "Prefix yang sesuai adalah /28 untuk VLAN 10 dan /29 untuk VLAN 20",
+                c: "Prefix yang sesuai adalah /26 untuk VLAN 10 dan /27 untuk VLAN 20",
+                d: "Prefix yang sesuai adalah /27 untuk VLAN 10 dan /27 untuk VLAN 20",
+                e: "Prefix yang sesuai adalah /29 untuk VLAN 10 dan /28 untuk VLAN 20",
+                keys: "A"
+            },
+            {
+                id: 49, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus IP Conflict] Komputer diberi IP 192.168.1.191/26. Mengapa status kartu jaringan NIC menunjukkan Error / Unreachable?",
+                a: "Alamat IP tersebut merupakan IP Broadcast subnet .128/26",
+                b: "Alamat IP tersebut merupakan IP Network subnet .128/26",
+                c: "Alamat IP tersebut melebihi batas oktet standar Kelas C",
+                d: "Subnet mask /26 tidak mengizinkan pengalamatan dinamis",
+                e: "Alamat IP tersebut hanya boleh dipakai oleh Wireless Router",
+                keys: "A"
+            },
+            {
+                id: 50, level: "STUDI KASUS", point: 4,
+                q: "[Studi Kasus Audit VLSM] Sebuah sekolah dengan IP 192.168.0.0/24 membagi 4 ruangan masing-masing 30 Host (/27). Berapa sisa IP host yang belum terpakai dari /24?",
+                a: "Sisa IP terbuang/belum terpakai sebanyak 128 IP Address",
+                b: "Sisa IP terbuang/belum terpakai sebanyak 64 IP Address",
+                c: "Sisa IP terbuang/belum terpakai sebanyak 32 IP Address",
+                d: "Sisa IP terbuang/belum terpakai sebanyak 0 IP Address",
+                e: "Sisa IP terbuang/belum terpakai sebanyak 16 IP Address",
+                keys: "A"
+            }
+        ];
+
+        // ==========================================
+        // 2. STATE MANAGEMENT & STORAGE
+        // ==========================================
+        let studentDatabase = JSON.parse(localStorage.getItem('cbt_students')) || [
+            { id: 1, name: "Ahmad Rizky", username: "USR001", password: "123", class: "XII TKJ 1", status: "BELUM", score: 0 },
+            { id: 2, name: "Siti Nurhaliza", username: "USR002", password: "123", class: "XII TKJ 1", status: "BELUM", score: 0 },
+            { id: 3, name: "Budi Santoso", username: "USR003", password: "123", class: "XII TKJ 1", status: "BELUM", score: 0 },
+            { id: 4, name: "Dewi Lestari", username: "USR004", password: "123", class: "XII TKJ 1", status: "BELUM", score: 0 }
+        ];
+
+        let currentStudent = null;
+        let activeExamQuestions = []; // 25 randomized questions
+        let studentAnswers = {}; // { questionId: { ans: 'A', doubt: false } }
+        let currentQuestionIndex = 0;
+        let examTimerInterval = null;
+        let secondsRemaining = 45 * 60; // 45 Minutes
+        let violationCount = 0;
+        let gasWebUrl = localStorage.getItem('cbt_gas_url') || '';
+
+        // Initialize App
+        window.onload = function() {
+            renderStudentTable();
+            if(gasWebUrl) document.getElementById('gasUrlInput').value = gasWebUrl;
+            setupSecurityListeners();
+        };
+
+        function saveStudentsToStorage() {
+            localStorage.setItem('cbt_students', JSON.stringify(studentDatabase));
+            renderStudentTable();
+        }
+
+        // ==========================================
+        // 3. EXAM PROTECTION & SECURITY SYSTEM
+        // ==========================================
+        function setupSecurityListeners() {
+            // Prevent Tab Switching & Focus Blur
+            window.addEventListener('blur', () => {
+                if (currentStudent && currentStudent.status === 'SEDANG') {
+                    handleViolation("Anda terdeteksi meninggalkan layar/pindah tab ujian!");
+                }
+            });
+
+            // Prevent Copy/Paste & Context Menu
+            document.addEventListener('copy', (e) => { if(currentStudent?.status==='SEDANG') e.preventDefault(); });
+            document.addEventListener('paste', (e) => { if(currentStudent?.status==='SEDANG') e.preventDefault(); });
+            
+            // Prevent Refresh/F5
+            window.addEventListener('beforeunload', (e) => {
+                if (currentStudent && currentStudent.status === 'SEDANG') {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        }
+
+        function requestFullscreen() {
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        }
+
+        function handleViolation(msg) {
+            violationCount++;
+            document.getElementById('violationCount').innerText = violationCount;
+            alert(`PERINGATAN PELANGGARAN UJIAN (${violationCount}/3)\n\n${msg}\nUjian akan otomatis dikirim jika mencapai 3 kali pelanggaran.`);
+            
+            if (violationCount >= 3) {
+                alert("Batas maksimum pelanggaran dicapai! Ujian Anda otomatis dikirim.");
+                submitExamAnswers();
+            }
+        }
+
+        // ==========================================
+        // 4. STUDENT AUTHENTICATION & EXAM ENGINE
+        // ==========================================
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            const st = studentDatabase.find(s => s.username === u && s.password === p);
+            if (!st) {
+                showLoginAlert("Username atau Password tidak cocok!");
+                return;
+            }
+
+            if (st.status === 'SELESAI') {
+                showLoginAlert("Anda sudah menyelesaikan ujian ini dan tidak dapat mengulang!");
+                return;
+            }
+
+            currentStudent = st;
+            document.getElementById('headerStudentName').innerText = st.name;
+            document.getElementById('userInfoHeader').classList.remove('hidden');
+
+            // Show Confirmation View
+            document.getElementById('confName').innerText = st.name;
+            document.getElementById('confUsername').innerText = st.username;
+            document.getElementById('confClass').innerText = st.class;
+
+            switchView('viewConfirm');
+        }
+
+        function showLoginAlert(txt) {
+            const el = document.getElementById('loginAlert');
+            document.getElementById('loginAlertText').innerText = txt;
+            el.classList.remove('hidden');
+        }
+
+        function logoutSiswa() {
+            currentStudent = null;
+            clearInterval(examTimerInterval);
+            document.getElementById('userInfoHeader').classList.add('hidden');
+            switchView('viewLogin');
+        }
+
+        function startExam() {
+            requestFullscreen();
+            currentStudent.status = 'SEDANG';
+            saveStudentsToStorage();
+
+            // Randomly Pick 25 Questions from 50 Bank Soal
+            let shuffled = [...BANK_SOAL].sort(() => 0.5 - Math.random());
+            activeExamQuestions = shuffled.slice(0, 25);
+
+            // Shuffle Options inside each selected question
+            activeExamQuestions.forEach(q => {
+                let opts = [
+                    { key: 'A', text: q.a },
+                    { key: 'B', text: q.b },
+                    { key: 'C', text: q.c },
+                    { key: 'D', text: q.d },
+                    { key: 'E', text: q.e }
+                ];
+                q.shuffledOptions = opts.sort(() => 0.5 - Math.random());
+            });
+
+            studentAnswers = {};
+            currentQuestionIndex = 0;
+            violationCount = 0;
+            secondsRemaining = 45 * 60;
+
+            startTimer();
+            renderQuestionGrid();
+            renderCurrentQuestion();
+            switchView('viewExam');
+        }
+
+        function startTimer() {
+            clearInterval(examTimerInterval);
+            examTimerInterval = setInterval(() => {
+                secondsRemaining--;
+                let m = Math.floor(secondsRemaining / 60);
+                let s = secondsRemaining % 60;
+                document.getElementById('timerDisplay').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
+                if (secondsRemaining <= 0) {
+                    clearInterval(examTimerInterval);
+                    alert("Waktu ujian telah habis! Sistem akan mengirimkan jawaban Anda secara otomatis.");
+                    submitExamAnswers();
+                }
+            }, 1000);
+        }
+
+        function renderCurrentQuestion() {
+            const q = activeExamQuestions[currentQuestionIndex];
+            document.getElementById('currentQuestionNumIndicator').innerText = currentQuestionIndex + 1;
+            document.getElementById('examProgressCount').innerText = currentQuestionIndex + 1;
+            document.getElementById('questionCategory').innerText = q.level;
+            document.getElementById('questionPoint').innerText = `Bobot: ${q.point} Poin`;
+            document.getElementById('questionText').innerText = `${currentQuestionIndex + 1}. ${q.q}`;
+
+            // Render Options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const currentAns = studentAnswers[q.id]?.ans;
+
+            q.shuffledOptions.forEach((opt, idx) => {
+                const labelLetter = String.fromCharCode(65 + idx); // A, B, C, D, E
+                const isSelected = currentAns === opt.key;
+
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-xl border border-slate-200 cursor-pointer flex items-center space-x-3 transition ${isSelected ? 'bg-brand-50 border-brand-500 ring-2 ring-brand-400' : 'hover:bg-slate-50'}`;
+                div.onclick = () => selectOption(q.id, opt.key);
+
+                div.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${isSelected ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-700'}">
+                        ${labelLetter}
+                    </div>
+                    <div class="flex-1 text-xs md:text-sm text-slate-800 leading-snug">${opt.text}</div>
+                `;
+                container.appendChild(div);
+            });
+
+            // Update Doubt Button Text State
+            const isDoubt = studentAnswers[q.id]?.doubt || false;
+            document.getElementById('btnDoubtText').innerText = isDoubt ? "Batal Ragu" : "Ragu-Ragu";
+
+            // Prev/Next Button Controls
+            document.getElementById('btnPrev').disabled = currentQuestionIndex === 0;
+            if (currentQuestionIndex === activeExamQuestions.length - 1) {
+                document.getElementById('btnNext').classList.add('hidden');
+                document.getElementById('btnSubmitExam').classList.remove('hidden');
+            } else {
+                document.getElementById('btnNext').classList.remove('hidden');
+                document.getElementById('btnSubmitExam').classList.add('hidden');
+            }
+
+            updateQuestionGridState();
+        }
+
+        function selectOption(qId, key) {
+            if (!studentAnswers[qId]) studentAnswers[qId] = {};
+            studentAnswers[qId].ans = key;
+            renderCurrentQuestion();
+        }
+
+        function toggleDoubtState() {
+            const q = activeExamQuestions[currentQuestionIndex];
+            if (!studentAnswers[q.id]) studentAnswers[q.id] = {};
+            studentAnswers[q.id].doubt = !studentAnswers[q.id].doubt;
+            renderCurrentQuestion();
+        }
+
+        function navigateQuestion(direction) {
+            currentQuestionIndex += direction;
+            if (currentQuestionIndex < 0) currentQuestionIndex = 0;
+            if (currentQuestionIndex >= activeExamQuestions.length) currentQuestionIndex = activeExamQuestions.length - 1;
+            renderCurrentQuestion();
+        }
+
+        function renderQuestionGrid() {
+            const gridDesktop = document.getElementById('questionGridDesktop');
+            const gridMobile = document.getElementById('questionGridMobile');
+            gridDesktop.innerHTML = '';
+            gridMobile.innerHTML = '';
+
+            activeExamQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `gridBtn_${idx}`;
+                btn.className = `h-9 w-full rounded-lg font-bold text-xs flex items-center justify-center border transition`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    currentQuestionIndex = idx;
+                    renderCurrentQuestion();
+                    document.getElementById('modalGrid').classList.add('hidden');
+                };
+
+                gridDesktop.appendChild(btn.cloneNode(true));
+                gridMobile.appendChild(btn);
+            });
+            updateQuestionGridState();
+        }
+
+        function updateQuestionGridState() {
+            activeExamQuestions.forEach((q, idx) => {
+                const ansObj = studentAnswers[q.id];
+                const btns = [
+                    document.getElementById(`questionGridDesktop`)?.children[idx],
+                    document.getElementById(`questionGridMobile`)?.children[idx]
+                ];
+
+                btns.forEach(btn => {
+                    if (!btn) return;
+                    btn.className = `h-9 w-full rounded-lg font-bold text-xs flex items-center justify-center border transition `;
+                    if (idx === currentQuestionIndex) {
+                        btn.classList.add('ring-2', 'ring-brand-600', 'ring-offset-1');
+                    }
+                    if (ansObj?.doubt) {
+                        btn.classList.add('bg-amber-400', 'text-slate-900', 'border-amber-500');
+                    } else if (ansObj?.ans) {
+                        btn.classList.add('bg-brand-600', 'text-white', 'border-brand-700');
+                    } else {
+                        btn.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-300');
+                    }
+                });
+            });
+        }
+
+        function toggleGridModal() {
+            document.getElementById('modalGrid').classList.toggle('hidden');
+        }
+
+        function confirmSubmitExam() {
+            let answeredCount = Object.keys(studentAnswers).filter(k => studentAnswers[k].ans).length;
+            let msg = `Anda telah menjawab ${answeredCount} dari 25 soal.\nApakah Anda yakin ingin menyelesaikan dan mengirim jawaban ujian?`;
+            if (confirm(msg)) {
+                submitExamAnswers();
+            }
+        }
+
+        function submitExamAnswers() {
+            clearInterval(examTimerInterval);
+
+            // Calculate Score
+            let correctCount = 0;
+            let wrongCount = 0;
+            let totalPoints = 0;
+
+            activeExamQuestions.forEach(q => {
+                const userAns = studentAnswers[q.id]?.ans;
+                if (userAns === q.keys) {
+                    correctCount++;
+                    totalPoints += q.point; // 4 pts each
+                } else {
+                    wrongCount++;
+                }
+            });
+
+            currentStudent.status = 'SELESAI';
+            currentStudent.score = totalPoints;
+            saveStudentsToStorage();
+
+            // Display Results View
+            document.getElementById('resScore').innerText = totalPoints;
+            document.getElementById('resCorrect').innerText = correctCount;
+            document.getElementById('resWrong').innerText = wrongCount;
+            document.getElementById('resGrade').innerText = totalPoints >= 75 ? "LULUS (A)" : "PERLU REMIDI";
+            document.getElementById('resStudentName').innerText = currentStudent.name;
+            document.getElementById('resStudentUser').innerText = currentStudent.username;
+            document.getElementById('resTimestamp').innerText = new Date().toLocaleString('id-ID');
+
+            switchView('viewResult');
+
+            // Push to Google Sheets Backend if URL exists
+            syncResultToGoogleSheet(currentStudent, totalPoints, correctCount, wrongCount);
+        }
+
+        // ==========================================
+        // 5. ADMIN PANEL & MANAGEMENT LOGIC
+        // ==========================================
+        function toggleAdminModal() {
+            document.getElementById('modalAdminAuth').classList.toggle('hidden');
+        }
+
+        function authenticateAdmin() {
+            const pass = document.getElementById('adminPassInput').value;
+            if (pass === 'admin123') {
+                document.getElementById('modalAdminAuth').classList.add('hidden');
+                document.getElementById('adminPassInput').value = '';
+                switchView('viewAdmin');
+            } else {
+                alert("Password Admin Salah! Default: admin123");
+            }
+        }
+
+        function closeAdmin() {
+            switchView('viewLogin');
+        }
+
+        function renderStudentTable() {
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('studentCountText').innerText = studentDatabase.length;
+
+            studentDatabase.forEach((st, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                let statusBadge = `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">BELUM</span>`;
+                if(st.status === 'SEDANG') statusBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">SEDANG UJIAN</span>`;
+                if(st.status === 'SELESAI') statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold">SELESAI</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-medium">${idx + 1}</td>
+                    <td class="p-3 font-mono text-brand-700 font-bold">${st.username}</td>
+                    <td class="p-3 font-mono">${st.password}</td>
+                    <td class="p-3 font-semibold text-slate-800">${st.name}</td>
+                    <td class="p-3">${st.class}</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                    <td class="p-3 text-center font-bold text-sm ${st.score >= 75 ? 'text-emerald-600' : 'text-slate-700'}">${st.score || 0}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="resetStudentExam(${st.id})" title="Reset Status Ujian" class="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-[11px] font-bold">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                        <button onclick="deleteStudent(${st.id})" title="Hapus Siswa" class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[11px]">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function resetStudentExam(id) {
+            if (confirm("Reset status ujian siswa ini? Siswa dapat melakukan login ulang untuk ujian.")) {
+                let st = studentDatabase.find(s => s.id === id);
+                if (st) {
+                    st.status = 'BELUM';
+                    st.score = 0;
+                    saveStudentsToStorage();
+                }
+            }
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Hapus data siswa dari daftar?")) {
+                studentDatabase = studentDatabase.filter(s => s.id !== id);
+                saveStudentsToStorage();
+            }
+        }
+
+        function generateAllCredentials() {
+            studentDatabase.forEach((st, idx) => {
+                st.username = `TKJ${String(idx + 1).padStart(3, '0')}`;
+                st.password = Math.floor(1000 + Math.random() * 9000).toString();
+            });
+            saveStudentsToStorage();
+            alert("Username dan Password otomatis berhasil di-generate untuk semua siswa!");
+        }
+
+        function openModalAddStudent() { document.getElementById('modalAddStudent').classList.remove('hidden'); }
+        function closeModalAddStudent() { document.getElementById('modalAddStudent').classList.add('hidden'); }
+
+        function saveSingleStudent() {
+            const name = document.getElementById('addName').value.trim();
+            const cls = document.getElementById('addClass').value.trim();
+            let user = document.getElementById('addUser').value.trim();
+            let pass = document.addPass ? document.getElementById('addPass').value.trim() : '';
+
+            if (!name) { alert("Nama lengkap wajib diisi!"); return; }
+
+            if (!user) user = `TKJ${String(studentDatabase.length + 1).padStart(3, '0')}`;
+            if (!pass) pass = Math.floor(1000 + Math.random() * 9000).toString();
+
+            studentDatabase.push({
+                id: Date.now(),
+                name: name,
+                class: cls || "X TKJ 1",
+                username: user,
+                password: pass,
+                status: 'BELUM',
+                score: 0
+            });
+
+            saveStudentsToStorage();
+            closeModalAddStudent();
+        }
+
+        // ==========================================
+        // 6. CSV IMPORT & TEMPLATE EXPORTER
+        // ==========================================
+        function downloadCSVTemplate() {
+            const csvContent = "data:text/csv;charset=utf-8,Nama,Kelas,Username,Password\nAhmad Rizky,XII TKJ 1,USR001,123\nSiti Nurhaliza,XII TKJ 1,USR002,123";
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "template_daftar_siswa_cbt.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function handleCSVUpload() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            if (!file) { alert("Pilih file CSV terlebih dahulu!"); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                let count = 0;
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (line) {
+                        const cols = line.split(',');
+                        if (cols.length >= 2) {
+                            studentDatabase.push({
+                                id: Date.now() + i,
+                                name: cols[0].trim(),
+                                class: cols[1].trim() || 'X TKJ 1',
+                                username: cols[2]?.trim() || `TKJ${String(studentDatabase.length + 1).padStart(3, '0')}`,
+                                password: cols[3]?.trim() || Math.floor(1000 + Math.random() * 9000).toString(),
+                                status: 'BELUM',
+                                score: 0
+                            });
+                            count++;
+                        }
+                    }
+                }
+                saveStudentsToStorage();
+                alert(`Berhasil mengimpor ${count} data siswa!`);
+            };
+            reader.readAsText(file);
+        }
+
+        // ==========================================
+        // 7. PRINT TEMPLATES (KARTU UJIAN & REKAP)
+        // ==========================================
+        function printAllCards() {
+            const printDiv = document.getElementById('printContainer');
+            printDiv.innerHTML = '<h2 style="text-align:center; font-weight:bold; margin-bottom:20px;">KARTU PESERTA UJIAN SUMATIF CIDR & VLSM (ANBK / TKA STYLE)</h2>';
+
+            let gridHtml = '<div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">';
+            studentDatabase.forEach(st => {
+                gridHtml += `
+                    <div style="border:2px solid #1e3a8a; border-radius:8px; padding:12px; font-family:sans-serif; background:#fff;">
+                        <div style="border-bottom:2px solid #1e3a8a; padding-bottom:6px; margin-bottom:8px; display:flex; justify-between; align-items:center;">
+                            <div>
+                                <strong style="font-size:12px; color:#1e3a8a;">KARTU PESERTA UJIAN CBT</strong>
+                                <div style="font-size:10px; color:#64748b;">SMK TEKNOLOGI INFORMASI</div>
+                            </div>
+                            <span style="font-size:10px; background:#eff6ff; border:1px solid #bfdbfe; padding:2px 6px; rounded:4px;">TKA 2026</span>
+                        </div>
+                        <table style="width:100%; font-size:11px; text-align:left;">
+                            <tr><td style="width:70px; font-weight:bold;">Nama</td><td>: ${st.name}</td></tr>
+                            <tr><td style="font-weight:bold;">Kelas</td><td>: ${st.class}</td></tr>
+                            <tr><td style="font-weight:bold;">Username</td><td>: <strong style="color:#1e3a8a; font-family:monospace;">${st.username}</strong></td></tr>
+                            <tr><td style="font-weight:bold;">Password</td><td>: <strong style="color:#b91c1c; font-family:monospace;">${st.password}</strong></td></tr>
+                        </table>
+                    </div>
+                `;
+            });
+            gridHtml += '</div>';
+            printDiv.innerHTML += gridHtml;
+
+            window.print();
+        }
+
+        function printCollectiveResults() {
+            const printDiv = document.getElementById('printContainer');
+            let html = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <h2 style="font-size:18px; font-weight:bold; margin:0;">DAFTAR REKAPITULASI NILAI SUMATIF CIDR & VLSM</h2>
+                    <p style="font-size:12px; margin:5px 0 0 0;">Mata Pelajaran: Jaringan Komputer / TKJ</p>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;" border="1" cellpadding="6">
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th>No</th>
+                            <th>Username</th>
+                            <th>Nama Siswa</th>
+                            <th>Kelas</th>
+                            <th>Status Ujian</th>
+                            <th>Nilai Akhir</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            studentDatabase.forEach((st, idx) => {
+                html += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${st.username}</td>
+                        <td>${st.name}</td>
+                        <td>${st.class}</td>
+                        <td>${st.status}</td>
+                        <td><strong>${st.score || 0}</strong></td>
+                        <td>${st.score >= 75 ? 'LULUS' : 'REMIDI'}</td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table>`;
+            printDiv.innerHTML = html;
+            window.print();
+        }
+
+        function printSelfResult() {
+            if(!currentStudent) return;
+            const printDiv = document.getElementById('printContainer');
+            printDiv.innerHTML = `
+                <div style="border:2px solid #000; padding:20px; border-radius:10px; max-w:600px; margin:0 auto; font-family:sans-serif;">
+                    <h2 style="text-align:center; font-size:16px; margin-bottom:5px;">LEMBAR HASIL UJIAN SUMATIF MANDIRI</h2>
+                    <hr style="margin-bottom:15px;">
+                    <table style="width:100%; font-size:12px; line-height:1.6;">
+                        <tr><td style="width:120px; font-weight:bold;">Nama Siswa</td><td>: ${currentStudent.name}</td></tr>
+                        <tr><td style="font-weight:bold;">Username</td><td>: ${currentStudent.username}</td></tr>
+                        <tr><td style="font-weight:bold;">Kelas</td><td>: ${currentStudent.class}</td></tr>
+                        <tr><td style="font-weight:bold;">Mata Pelajaran</td><td>: Subnetting CIDR Kelas C & VLSM</td></tr>
+                        <tr><td style="font-weight:bold;">Nilai Akhir</td><td>: <strong style="font-size:18px; color:#1e3a8a;">${currentStudent.score} / 100</strong></td></tr>
+                        <tr><td style="font-weight:bold;">Status Hasil</td><td>: ${currentStudent.score >= 75 ? 'TUNTAS / LULUS' : 'TIDAK TUNTAS'}</td></tr>
+                    </table>
+                    <br><br>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:30px;">
+                        <div style="text-align:center;">
+                            Siswa Peserta,<br><br><br><br>
+                            ( <strong>${currentStudent.name}</strong> )
+                        </div>
+                        <text-align:center;">
+                            Guru Mata Pelajaran,<br><br><br><br>
+                            ( ________________________ )
+                        </div>
+                    </div>
+                </div>
+            `;
+            window.print();
+        }
+
+        // ==========================================
+        // 8. GOOGLE APPS SCRIPT (GAS) INTEGRATION
+        // ==========================================
+        function saveGasUrl() {
+            const url = document.getElementById('gasUrlInput').value.trim();
+            localStorage.setItem('cbt_gas_url', url);
+            gasWebUrl = url;
+            alert("URL Google Apps Script berhasil disimpan!");
+        }
+
+        function syncResultToGoogleSheet(student, score, correct, wrong) {
+            const statusEl = document.getElementById('resSyncStatus');
+            if (!gasWebUrl) {
+                if(statusEl) statusEl.innerText = "Tidak tersambung (URL GAS Belum Diisi)";
+                return;
+            }
+
+            const payload = {
+                username: student.username,
+                name: student.name,
+                class: student.class,
+                score: score,
+                correct: correct,
+                wrong: wrong,
+                timestamp: new Date().toLocaleString('id-ID')
+            };
+
+            fetch(gasWebUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                if(statusEl) {
+                    statusEl.innerText = "Tersimpan di Google Sheets!";
+                    statusEl.className = "font-bold text-emerald-600";
+                }
+            }).catch(err => {
+                if(statusEl) statusEl.innerText = "Gagal Sinkronisasi";
+            });
+        }
+
+        function toggleGasGuideModal() {
+            const code = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  
+  // Create Headers if empty
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Timestamp", "Username", "Nama Siswa", "Kelas", "Nilai Akhir", "Benar", "Salah"]);
+  }
+  
+  sheet.appendRow([
+    data.timestamp,
+    data.username,
+    data.name,
+    data.class,
+    data.score,
+    data.correct,
+    data.wrong
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({"result":"success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+            document.getElementById('gasCodeText').value = code;
+            document.getElementById('modalGasGuide').classList.toggle('hidden');
+        }
+
+        function copyGasCode() {
+            const txt = document.getElementById('gasCodeText');
+            txt.select();
+            document.execCommand('copy');
+            alert("Kode GS berhasil disalin ke Clipboard!");
+        }
+
+        // Helper Navigation View Switcher
+        function switchView(viewId) {
+            ['viewLogin', 'viewConfirm', 'viewExam', 'viewResult', 'viewAdmin'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
