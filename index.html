@@ -268,7 +268,7 @@
                 <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col flex-1">
                     <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
                         <button onclick="switchAdminTab('tab-rekap')" id="btn-tab-rekap" class="px-5 py-3 border-b-2 border-blue-600 text-blue-600 bg-white">Rekapitulasi Nilai</button>
-                        <button onclick="switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-5 py-3 text-slate-600 hover:text-slate-800">Daftar Akun Siswa (36)</button>
+                        <button onclick="switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-5 py-3 text-slate-600 hover:text-slate-800">Daftar Akun Siswa</button>
                         <button onclick="switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Unggah / Import Hasil</button>
                     </div>
 
@@ -299,34 +299,76 @@
                         </table>
                     </div>
 
-                    <!-- TAB 2: DAFTAR SISWA & RESET -->
-                    <div id="tab-siswa" class="hidden p-5 overflow-x-auto flex-1">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-sm text-slate-800">Kelola Akun Ujian Siswa</h3>
-                            <div class="flex gap-2">
-                                <button onclick="generateAuto36Siswa()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Auto Generate 36 Siswa
-                                </button>
-                                <button onclick="downloadCSVTemplate()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold border">
-                                    <i class="fa-solid fa-download"></i> Template CSV Siswa
+                    <!-- TAB 2: DAFTAR SISWA, TAMBAH MANUAL & UNGGAH CSV KOLEKTIF -->
+                    <div id="tab-siswa" class="hidden p-5 flex-1 space-y-6">
+                        <!-- FITUR UNGGAH KOLEKTIF & TAMBAH MANUAL -->
+                        <div class="grid md:grid-cols-2 gap-4 bg-slate-50 p-4 border border-slate-200 rounded-xl">
+                            <!-- BLOK 1: UNGGAH CSV KOLEKTIF -->
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs uppercase text-slate-800 mb-1 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-file-csv text-emerald-600"></i> Unggah Daftar Siswa Kolektif (CSV)
+                                    </h4>
+                                    <p class="text-[11px] text-slate-500 mb-3">Unggah sekaligus daftar 36 siswa menggunakan file CSV.</p>
+                                    <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="unggahSiswaCSV()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm">
+                                        <i class="fa-solid fa-upload"></i> Unggah CSV
+                                    </button>
+                                    <button onclick="downloadCSVTemplate()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-semibold border flex items-center gap-1">
+                                        <i class="fa-solid fa-download"></i> Template CSV
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- BLOK 2: TAMBAH SATUAN / AUTO GENERATE -->
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-bold text-xs uppercase text-slate-800 mb-2 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-user-plus text-blue-600"></i> Tambah Siswa Satuan / Auto 36
+                                    </h4>
+                                    <form id="form-tambah-siswa" onsubmit="tambahSiswaManual(event)" class="space-y-2 mb-3">
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <input type="text" id="add-username" placeholder="Username" required class="px-2.5 py-1.5 border rounded text-xs">
+                                            <input type="text" id="add-password" placeholder="Password" required class="px-2.5 py-1.5 border rounded text-xs">
+                                            <input type="text" id="add-nama" placeholder="Nama Lengkap" required class="px-2.5 py-1.5 border rounded text-xs">
+                                        </div>
+                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded text-xs font-semibold">
+                                            + Tambah 1 Siswa
+                                        </button>
+                                    </form>
+                                </div>
+                                <button onclick="generateAuto36Siswa()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Auto Generate Default 36 Siswa
                                 </button>
                             </div>
                         </div>
-                        <table class="w-full text-xs text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
-                                    <th class="p-2.5 border">No</th>
-                                    <th class="p-2.5 border">Username</th>
-                                    <th class="p-2.5 border">Password</th>
-                                    <th class="p-2.5 border">Nama Lengkap</th>
-                                    <th class="p-2.5 border text-center">Status Ujian</th>
-                                    <th class="p-2.5 border text-center">Aksi Reset</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-body-siswa">
-                                <!-- Dynamic -->
-                            </tbody>
-                        </table>
+
+                        <!-- TABEL SISWA -->
+                        <div class="overflow-x-auto">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-bold text-sm text-slate-800">Daftar Akun Siswa Terdaftar</h3>
+                                <button onclick="hapusSemuaSiswa()" class="text-xs text-rose-600 hover:underline font-semibold">
+                                    <i class="fa-solid fa-trash"></i> Hapus Semua Akun
+                                </button>
+                            </div>
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
+                                        <th class="p-2.5 border">No</th>
+                                        <th class="p-2.5 border">Username</th>
+                                        <th class="p-2.5 border">Password</th>
+                                        <th class="p-2.5 border">Nama Lengkap</th>
+                                        <th class="p-2.5 border text-center">Status Ujian</th>
+                                        <th class="p-2.5 border text-center">Aksi Reset</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbl-body-siswa">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- TAB 3: IMPORT DATA / QR -->
@@ -352,8 +394,8 @@
                                 </div>
 
                                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                    <h4 class="font-bold text-xs uppercase text-slate-700 mb-2">Unggah File JSON / Kolektif CSV</h4>
-                                    <input type="file" id="file-import-json" accept=".json,.csv" class="text-xs text-slate-500 w-full mb-2">
+                                    <h4 class="font-bold text-xs uppercase text-slate-700 mb-2">Unggah File Hasil (JSON)</h4>
+                                    <input type="file" id="file-import-json" accept=".json" class="text-xs text-slate-500 w-full mb-2">
                                     <button onclick="prosesImportFile()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded text-xs font-semibold">
                                         Unggah & Rekap Hasil
                                     </button>
@@ -742,22 +784,109 @@
             // Render Daftar Siswa
             const tbodySiswa = document.getElementById('tbl-body-siswa');
             tbodySiswa.innerHTML = '';
-            daftarSiswa.forEach((s, i) => {
-                tbodySiswa.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b">
-                        <td class="p-2.5 border">${i+1}</td>
-                        <td class="p-2.5 border font-mono">${s.username}</td>
-                        <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
-                        <td class="p-2.5 border">${s.nama}</td>
-                        <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${s.status}</span></td>
-                        <td class="p-2.5 border text-center">
-                            <button onclick="resetStatusUjian('${s.username}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[10px] font-bold">
-                                <i class="fa-solid fa-rotate-left"></i> Reset Ujian
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
+            if(daftarSiswa.length === 0) {
+                tbodySiswa.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">Belum ada akun siswa. Silakan unggah file CSV atau klik Auto Generate.</td></tr>`;
+            } else {
+                daftarSiswa.forEach((s, i) => {
+                    tbodySiswa.innerHTML += `
+                        <tr class="hover:bg-slate-50 border-b">
+                            <td class="p-2.5 border">${i+1}</td>
+                            <td class="p-2.5 border font-mono">${s.username}</td>
+                            <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
+                            <td class="p-2.5 border font-semibold">${s.nama}</td>
+                            <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${s.status || 'Belum Ujian'}</span></td>
+                            <td class="p-2.5 border text-center flex justify-center gap-2">
+                                <button onclick="resetStatusUjian('${s.username}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                                <button onclick="hapusSiswaTunggal('${s.username}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1 rounded text-[10px] font-bold">
+                                    <i class="fa-solid fa-xmark"></i> Hapus
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // ==========================================
+        // 6. MANAJEMEN UNGGAH SISWA KOLEKTIF (CSV)
+        // ==========================================
+        function unggahSiswaCSV() {
+            const fileInput = document.getElementById('file-siswa-csv');
+            const file = fileInput.files[0];
+            if(!file) return alert("Pilih file CSV siswa terlebih dahulu!");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+                let newSiswaCount = 0;
+
+                lines.forEach((line, index) => {
+                    if(index === 0 || !line.trim()) return; // Skip Header
+                    const cols = line.split(',');
+                    if(cols.length >= 3) {
+                        const u = cols[0].replace(/"/g, '').trim();
+                        const p = cols[1].replace(/"/g, '').trim();
+                        const n = cols[2].replace(/"/g, '').trim();
+
+                        if(u && p && n) {
+                            // Replace jika username sudah ada
+                            daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                            daftarSiswa.push({
+                                username: u,
+                                password: p,
+                                nama: n,
+                                status: 'Belum Ujian'
+                            });
+                            newSiswaCount++;
+                        }
+                    }
+                });
+
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                alert(`BERHASIL: Memproses ${newSiswaCount} data siswa dari file CSV!`);
+                fileInput.value = '';
+                renderAdminTables();
+            };
+            reader.readAsText(file);
+        }
+
+        function tambahSiswaManual(e) {
+            e.preventDefault();
+            const u = document.getElementById('add-username').value.trim();
+            const p = document.getElementById('add-password').value.trim();
+            const n = document.getElementById('add-nama').value.trim();
+
+            if(u && p && n) {
+                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                daftarSiswa.push({ username: u, password: p, nama: n, status: 'Belum Ujian' });
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                
+                document.getElementById('add-username').value = '';
+                document.getElementById('add-password').value = '';
+                document.getElementById('add-nama').value = '';
+                
+                renderAdminTables();
+                alert(`Siswa ${n} berhasil ditambahkan!`);
+            }
+        }
+
+        function hapusSiswaTunggal(uname) {
+            if(confirm(`Hapus akun siswa ${uname}?`)) {
+                daftarSiswa = daftarSiswa.filter(s => s.username !== uname);
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                renderAdminTables();
+            }
+        }
+
+        function hapusSemuaSiswa() {
+            if(confirm("YAKIN HAPUS SEMUA AKUN SISWA? Data tidak dapat dikembalikan.")) {
+                daftarSiswa = [];
+                localStorage.setItem('cbt_siswa', JSON.stringify([]));
+                renderAdminTables();
+            }
         }
 
         function resetStatusUjian(uname) {
@@ -778,14 +907,14 @@
         }
 
         function generateAuto36Siswa() {
-            if(confirm("Generate ulang default 36 Akun Siswa? Data akun saat ini akan diperbarui.")) {
+            if(confirm("Generate ulang default 36 Akun Siswa? Data akun saat ini akan digantikan.")) {
                 initDefault36Siswa();
                 renderAdminTables();
             }
         }
 
         // ==========================================
-        // 6. QR SCANNER & IMPORT LOGIC
+        // 7. QR SCANNER & IMPORT RESULT LOGIC
         // ==========================================
         let html5QrcodeScanner = null;
 
@@ -828,7 +957,7 @@
         function prosesImportFile() {
             const fileInput = document.getElementById('file-import-json');
             const file = fileInput.files[0];
-            if(!file) return alert("Pilih file JSON atau CSV terlebih dahulu!");
+            if(!file) return alert("Pilih file JSON hasil ujian terlebih dahulu!");
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -840,7 +969,7 @@
                         rekapNilai.push(data);
                     }
                     localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
-                    alert("Import file berhasil!");
+                    alert("Import file hasil berhasil!");
                     renderAdminTables();
                 } catch(err) {
                     alert("Gagal membaca file JSON!");
@@ -850,7 +979,7 @@
         }
 
         // ==========================================
-        // 7. CETAK DOKUMEN & EXPORT
+        // 8. CETAK DOKUMEN & EXPORT
         // ==========================================
         function cetakKartuSiswa() {
             let pWin = document.getElementById('print-content');
@@ -932,7 +1061,7 @@
         }
 
         function downloadCSVTemplate() {
-            let csv = "username,password,nama\nuser01,pass01,Nama Siswa 1\nuser02,pass02,Nama Siswa 2\n";
+            let csv = "username,password,nama\nuser01,pass01,Nama Siswa 1\nuser02,pass02,Nama Siswa 2\nuser03,pass03,Nama Siswa 3\n";
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
