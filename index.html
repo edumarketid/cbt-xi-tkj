@@ -1,3 +1,8 @@
+Fitur scan absensi kehadiran, perbaikan *print view* (agar hanya dokumen terkait yang muncul tanpa antarmuka aplikasi), serta opsi pengunggahan logo/kop sekolah kini telah diintegrasikan.
+
+Berikut file utuh `index.html` terbarui:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,13 +20,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; user-select: none; }
         .no-select { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        
+        /* ISOLASI CETAK PERBAIKAN: Sembunyikan seluruh UI aplikasi saat print */
         @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; color: black; }
+            body * { visibility: hidden !important; }
+            #print-area, #print-area * { visibility: visible !important; }
+            #print-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
             .page-break { page-break-after: always; }
         }
-        .print-only { display: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen no-select" oncontextmenu="return false;">
@@ -30,7 +36,7 @@
     <div id="app" class="min-h-screen flex flex-col">
 
         <!-- HEADER TOP BAR -->
-        <header class="bg-blue-700 text-white shadow-md no-print">
+        <header class="bg-blue-700 text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-network-wired text-2xl text-blue-200"></i>
@@ -109,7 +115,6 @@
             <section id="view-exam" class="hidden flex-1 flex flex-col md:flex-row gap-4">
                 <!-- PANEL KIRI: SOAL & NAVIGASI -->
                 <div class="flex-1 bg-white rounded-2xl shadow-md border border-slate-200 p-5 md:p-6 flex flex-col">
-                    <!-- TIMER & HEADER SOAL -->
                     <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
                         <span class="text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-3 py-1 rounded-full" id="txt-nomor-soal">Soal No. 1 dari 25</span>
                         <div class="flex items-center space-x-2 bg-slate-900 text-emerald-400 font-mono text-sm font-bold px-3 py-1.5 rounded-lg shadow-inner">
@@ -118,18 +123,11 @@
                         </div>
                     </div>
 
-                    <!-- TEKS SOAL -->
                     <div class="flex-1 overflow-y-auto mb-6 pr-2">
-                        <div id="box-soal-konten" class="text-sm md:text-base text-slate-800 font-medium leading-relaxed mb-6">
-                            <!-- Soal dinamis -->
-                        </div>
-                        <!-- OPSI JAWABAN (A-E) -->
-                        <div id="box-opsi-jawaban" class="space-y-3">
-                            <!-- Opsi dinamis -->
-                        </div>
+                        <div id="box-soal-konten" class="text-sm md:text-base text-slate-800 font-medium leading-relaxed mb-6"></div>
+                        <div id="box-opsi-jawaban" class="space-y-3"></div>
                     </div>
 
-                    <!-- FOOTER NAVIGASI SOAL -->
                     <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
                         <button onclick="soalPrev()" id="btn-prev" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-xs md:text-sm flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-arrow-left"></i> Sebelumnya
@@ -149,9 +147,7 @@
                     <h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-table-cells text-blue-600"></i> Navigator Soal
                     </h3>
-                    <div id="grid-navigator" class="grid grid-cols-5 gap-2 mb-6">
-                        <!-- Grid tombol 1-25 -->
-                    </div>
+                    <div id="grid-navigator" class="grid grid-cols-5 gap-2 mb-6"></div>
                     <div class="mt-auto space-y-3">
                         <div class="text-xs space-y-1.5 border-t border-slate-100 pt-3">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-blue-600"></span><span>Sudah dijawab</span></div>
@@ -174,22 +170,18 @@
                     <h2 class="text-2xl font-bold text-slate-800 mb-1">Ujian Telah Selesai!</h2>
                     <p class="text-xs text-slate-500 mb-6">Hasil nilai telah dihitung secara otomatis dan tersimpan.</p>
 
-                    <!-- CARD NILAI -->
                     <div class="bg-gradient-to-br from-slate-900 to-blue-900 text-white rounded-2xl p-6 mb-6 shadow-inner">
                         <p class="text-xs uppercase tracking-widest text-blue-200 mb-1">Nilai Akhir Anda</p>
                         <div id="txt-nilai-akhir" class="text-5xl font-black tracking-tight text-emerald-400 my-2">0</div>
-                        <p id="txt-status-lulus" class="text-xs font-semibold uppercase px-3 py-1 rounded-full inline-block bg-emerald-500/20 text-emerald-300">
-                            -
-                        </p>
+                        <p id="txt-status-lulus" class="text-xs font-semibold uppercase px-3 py-1 rounded-full inline-block bg-emerald-500/20 text-emerald-300">-</p>
                         <div class="grid grid-cols-2 gap-4 border-t border-blue-800/60 mt-4 pt-4 text-xs">
                             <div><span class="text-slate-400 block">Jawaban Benar</span><strong id="txt-total-benar" class="text-emerald-400 text-base">0</strong></div>
                             <div><span class="text-slate-400 block">Jawaban Salah</span><strong id="txt-total-salah" class="text-rose-400 text-base">0</strong></div>
                         </div>
                     </div>
 
-                    <!-- QR CODE BUKTI HASIL FOR GURU SCAN -->
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
-                        <p class="text-xs font-semibold text-slate-600 mb-2">Tunjukkan QR Code ini kepada Guru untuk Scan Hasil:</p>
+                        <p class="text-xs font-semibold text-slate-600 mb-2">Tunjukkan QR Code ini kepada Guru untuk Scan Hasil / Absensi:</p>
                         <div id="qrcode-box" class="flex justify-center p-2 bg-white rounded-lg inline-block border shadow-sm"></div>
                         <p class="text-[10px] text-slate-400 mt-2">Kode Teks Hasil Mandiri:</p>
                         <input type="text" id="txt-code-hasil" readonly onclick="this.select()" class="w-full text-center font-mono text-[11px] bg-white border rounded px-2 py-1 mt-1 text-slate-600" value="-">
@@ -214,7 +206,7 @@
                             <i class="fa-solid fa-user-shield"></i>
                         </div>
                         <h2 class="text-xl font-bold text-slate-800">Login Panel Guru</h2>
-                        <p class="text-xs text-slate-500 mt-1">Akses Manajemen Siswa & Rekap Nilai</p>
+                        <p class="text-xs text-slate-500 mt-1">Akses Manajemen Siswa, Presensi & Rekap Nilai</p>
                     </div>
 
                     <form onsubmit="handleLoginAdmin(event)" class="space-y-4">
@@ -246,11 +238,11 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="bukaScannerQR()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-qrcode"></i> Scan QR Siswa
-                        </button>
                         <button onclick="cetakKartuSiswa()" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-id-card"></i> Cetak Kartu Ujian
+                            <i class="fa-solid fa-id-card"></i> Cetak Kartu
+                        </button>
+                        <button onclick="cetakDaftarHadir()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-clipboard-user"></i> Cetak Daftar Hadir
                         </button>
                         <button onclick="cetakArsipSoal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-print"></i> Cetak Bank Soal
@@ -269,7 +261,8 @@
                     <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
                         <button onclick="switchAdminTab('tab-rekap')" id="btn-tab-rekap" class="px-5 py-3 border-b-2 border-blue-600 text-blue-600 bg-white">Rekapitulasi Nilai</button>
                         <button onclick="switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-5 py-3 text-slate-600 hover:text-slate-800">Daftar Akun Siswa</button>
-                        <button onclick="switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Unggah / Import Hasil</button>
+                        <button onclick="switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Scan QR Hasil & Kehadiran</button>
+                        <button onclick="switchAdminTab('tab-pengaturan')" id="btn-tab-pengaturan" class="px-5 py-3 text-slate-600 hover:text-slate-800">Pengaturan Kop Sekolah</button>
                     </div>
 
                     <!-- TAB 1: REKAP NILAI -->
@@ -293,17 +286,13 @@
                                     <th class="p-2.5 border text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbl-body-rekap">
-                                <!-- Dynamic -->
-                            </tbody>
+                            <tbody id="tbl-body-rekap"></tbody>
                         </table>
                     </div>
 
-                    <!-- TAB 2: DAFTAR SISWA, TAMBAH MANUAL & UNGGAH CSV KOLEKTIF -->
+                    <!-- TAB 2: DAFTAR SISWA & UNGGAH CSV KOLEKTIF -->
                     <div id="tab-siswa" class="hidden p-5 flex-1 space-y-6">
-                        <!-- FITUR UNGGAH KOLEKTIF & TAMBAH MANUAL -->
                         <div class="grid md:grid-cols-2 gap-4 bg-slate-50 p-4 border border-slate-200 rounded-xl">
-                            <!-- BLOK 1: UNGGAH CSV KOLEKTIF -->
                             <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
                                 <div>
                                     <h4 class="font-bold text-xs uppercase text-slate-800 mb-1 flex items-center gap-1.5">
@@ -322,7 +311,6 @@
                                 </div>
                             </div>
 
-                            <!-- BLOK 2: TAMBAH SATUAN / AUTO GENERATE -->
                             <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
                                 <div>
                                     <h4 class="font-bold text-xs uppercase text-slate-800 mb-2 flex items-center gap-1.5">
@@ -345,10 +333,9 @@
                             </div>
                         </div>
 
-                        <!-- TABEL SISWA -->
                         <div class="overflow-x-auto">
                             <div class="flex justify-between items-center mb-3">
-                                <h3 class="font-bold text-sm text-slate-800">Daftar Akun Siswa Terdaftar</h3>
+                                <h3 class="font-bold text-sm text-slate-800">Daftar Akun Siswa & Kehadiran</h3>
                                 <button onclick="hapusSemuaSiswa()" class="text-xs text-rose-600 hover:underline font-semibold">
                                     <i class="fa-solid fa-trash"></i> Hapus Semua Akun
                                 </button>
@@ -360,36 +347,34 @@
                                         <th class="p-2.5 border">Username</th>
                                         <th class="p-2.5 border">Password</th>
                                         <th class="p-2.5 border">Nama Lengkap</th>
+                                        <th class="p-2.5 border text-center">Kehadiran</th>
                                         <th class="p-2.5 border text-center">Status Ujian</th>
                                         <th class="p-2.5 border text-center">Aksi Reset</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbl-body-siswa">
-                                    <!-- Dynamic -->
-                                </tbody>
+                                <tbody id="tbl-body-siswa"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- TAB 3: IMPORT DATA / QR -->
+                    <!-- TAB 3: SCAN QR HASIL & ABSENSI -->
                     <div id="tab-import" class="hidden p-5 flex-1 space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
-                            <!-- SCANNER CAMERA -->
+                            <!-- SCANNER CAMERA INTEGRATED -->
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
                                 <h4 class="font-bold text-xs uppercase text-slate-700 mb-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-camera"></i> Scan Kamera QR Siswa
+                                    <i class="fa-solid fa-camera"></i> Scan Kamera (Nilai & Absensi)
                                 </h4>
                                 <div id="qr-reader" class="w-full rounded-lg overflow-hidden border"></div>
                                 <div id="qr-reader-results" class="mt-2 text-xs text-emerald-600 font-semibold"></div>
                             </div>
 
-                            <!-- MANUAL TEXT / JSON IMPORT -->
                             <div class="space-y-4">
                                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
                                     <h4 class="font-bold text-xs uppercase text-slate-700 mb-2">Input Teks Kode Mandiri</h4>
                                     <textarea id="txt-import-code" rows="3" class="w-full p-2 border rounded text-xs font-mono" placeholder="Paste kode teks dari HP siswa di sini..."></textarea>
                                     <button onclick="prosesImportKodeTeks()" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-xs font-semibold">
-                                        Proses Kode Hasil
+                                        Proses Kode Hasil / Absensi
                                     </button>
                                 </div>
 
@@ -403,27 +388,40 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- TAB 4: PENGATURAN KOP SEKOLAH -->
+                    <div id="tab-pengaturan" class="hidden p-5 flex-1 space-y-4">
+                        <h3 class="font-bold text-sm text-slate-800 mb-2">Unggah Kop Sekolah / Logo untuk Kebutuhan Cetak</h3>
+                        <div class="bg-slate-50 p-4 rounded-xl border space-y-3 max-w-lg">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1">Gambar Kop Sekolah (Banner) / Logo</label>
+                                <input type="file" id="file-kop-sekolah" accept="image/*" onchange="previewKopSekolah(event)" class="text-xs w-full">
+                            </div>
+                            <div id="box-preview-kop" class="hidden border p-2 bg-white rounded">
+                                <p class="text-[10px] text-slate-400 mb-1">Preview Kop Sekolah:</p>
+                                <img id="img-preview-kop" src="" alt="Kop Sekolah" class="max-h-24 mx-auto">
+                            </div>
+                            <button onclick="simpanKopSekolah()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-xs font-semibold">
+                                Simpan Kop Sekolah
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
         </main>
 
-        <!-- FOOTER -->
-        <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 no-print">
+        <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
             CBT Sumatif Akhir TP - CIDR & VLSM &copy; 2026 - Standalone System Ready for GitHub Pages
         </footer>
     </div>
 
-    <!-- AREA CETAK KHUSUS (PRINT-ONLY) -->
-    <div class="print-only p-8">
-        <div id="print-content"></div>
-    </div>
+    <!-- AREA CETAK KHUSUS (PRINT-ONLY ISOLATED) -->
+    <div id="print-area"></div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // ==========================================
-        // 1. MASTER BANK SOAL 50 NUMBERS (SEIMBANG)
-        // ==========================================
+        // MASTER BANK SOAL 50 NUMBERS
         const MASTER_BANK_SOAL = [
             { id: 1, q: "Berapakah jumlah total IP Address yang ada pada subnet mask /24?", a: ["256 IP", "128 IP", "64 IP", "32 IP", "512 IP"], c: 0 },
             { id: 2, q: "Berapakah jumlah host usable (dapat dipakai) pada prefix /24?", a: ["254 host", "255 host", "256 host", "252 host", "128 host"], c: 0 },
@@ -477,11 +475,10 @@
             { id: 50, q: "Jika sebuah Interface MikroTik diberi IP 192.168.1.254/30, manakah IP pasangan router-nya?", a: ["192.168.1.253", "192.168.1.252", "192.168.1.255", "192.168.1.250", "192.168.1.248"], c: 0 }
         ];
 
-        // ==========================================
-        // 2. STATE APLIKASI
-        // ==========================================
+        // STATE APLIKASI
         let daftarSiswa = JSON.parse(localStorage.getItem('cbt_siswa')) || [];
         let rekapNilai = JSON.parse(localStorage.getItem('cbt_rekap')) || [];
+        let kopSekolahImg = localStorage.getItem('cbt_kop_sekolah') || '';
         
         let activeUser = null;
         let activeExamSoal = [];
@@ -489,13 +486,10 @@
         let activeRagu = {};
         let currentIndex = 0;
         let timerInterval = null;
-        let timeRemaining = 45 * 60; // 45 menit
+        let timeRemaining = 45 * 60;
         let countViolations = 0;
 
-        // Auto Generate 36 siswa jika kosong
-        if(daftarSiswa.length === 0) {
-            initDefault36Siswa();
-        }
+        if(daftarSiswa.length === 0) initDefault36Siswa();
 
         function initDefault36Siswa() {
             daftarSiswa = [];
@@ -505,15 +499,13 @@
                     username: 'user' + num,
                     password: 'pass' + num,
                     nama: 'Siswa Peserta ' + num,
+                    kehadiran: 'Belum Hadir',
                     status: 'Belum Ujian'
                 });
             }
             localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
         }
 
-        // ==========================================
-        // 3. ROUTING & VIEWS
-        // ==========================================
         function showView(viewId) {
             ['view-login', 'view-konfirmasi', 'view-exam', 'view-hasil', 'view-admin-login', 'view-admin-dashboard'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -521,38 +513,30 @@
             document.getElementById(viewId).classList.remove('hidden');
         }
 
-        // ==========================================
-        // 4. LOGIN SISWA & PENGERJAAN
-        // ==========================================
         function handleLoginSiswa(e) {
             e.preventDefault();
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
 
             const found = daftarSiswa.find(s => s.username === u && s.password === p);
-            if(!found) {
-                alert("Username atau Password salah!");
-                return;
-            }
+            if(!found) return alert("Username atau Password salah!");
 
-            // Cek jika sudah ujian
             const rekapExist = rekapNilai.find(r => r.username === u);
-            if(rekapExist) {
-                alert("Anda sudah menyelesaikan ujian ini dengan nilai: " + rekapExist.score);
-                return;
-            }
+            if(rekapExist) return alert("Anda sudah menyelesaikan ujian ini dengan nilai: " + rekapExist.score);
 
             activeUser = found;
+            // Absensi Otomatis saat Login
+            activeUser.kehadiran = "Hadir (" + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ")";
+            localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+
             document.getElementById('konf-nama').innerText = activeUser.nama;
             document.getElementById('konf-user').innerText = activeUser.username;
             showView('view-konfirmasi');
         }
 
         function mulaiUjian() {
-            // Pick 25 Random Questions from 50 Bank
             let shuffled = [...MASTER_BANK_SOAL].sort(() => 0.5 - Math.random());
             activeExamSoal = shuffled.slice(0, 25);
-            
             activeAnswers = {};
             activeRagu = {};
             currentIndex = 0;
@@ -565,13 +549,12 @@
             renderNavigator();
             startTimer();
 
-            // Proteksi Pindah Tab
             window.addEventListener('blur', handleTabViolation);
         }
 
         function handleTabViolation() {
             countViolations++;
-            alert(`PERHATIAN! Anda terdeteksi meninggalkan halaman ujian (${countViolations}x). Ujian dilarang menggunakan tab lain!`);
+            alert(`PERHATIAN! Anda terdeteksi meninggalkan halaman ujian (${countViolations}x).`);
         }
 
         function reqFullscreen() {
@@ -598,12 +581,10 @@
         function renderQuestion() {
             const current = activeExamSoal[currentIndex];
             document.getElementById('txt-nomor-soal').innerText = `Soal No. ${currentIndex + 1} dari 25`;
-            
             document.getElementById('box-soal-konten').innerText = current.q;
 
             const boxOpsi = document.getElementById('box-opsi-jawaban');
             boxOpsi.innerHTML = '';
-
             const labels = ['A', 'B', 'C', 'D', 'E'];
             current.a.forEach((optText, idx) => {
                 const isSelected = activeAnswers[currentIndex] === idx;
@@ -633,13 +614,8 @@
             renderNavigator();
         }
 
-        function soalPrev() {
-            if(currentIndex > 0) { currentIndex--; renderQuestion(); }
-        }
-
-        function soalNext() {
-            if(currentIndex < 24) { currentIndex++; renderQuestion(); }
-        }
+        function soalPrev() { if(currentIndex > 0) { currentIndex--; renderQuestion(); } }
+        function soalNext() { if(currentIndex < 24) { currentIndex++; renderQuestion(); } }
 
         function renderNavigator() {
             const grid = document.getElementById('grid-navigator');
@@ -652,7 +628,6 @@
                 let bgClass = "bg-slate-100 text-slate-700 border-slate-300";
                 if(isRagu) bgClass = "bg-amber-400 text-slate-900 font-bold";
                 else if(isAnswered) bgClass = "bg-blue-600 text-white font-bold";
-
                 if(isCurrent) bgClass += " ring-2 ring-slate-900 ring-offset-1";
 
                 const btn = document.createElement('button');
@@ -683,6 +658,7 @@
             let status = score >= 75 ? "LULUS" : "REMIDI";
 
             const payload = {
+                type: "CBT_RESULT",
                 username: activeUser.username,
                 nama: activeUser.nama,
                 benar: benar,
@@ -692,19 +668,16 @@
                 waktu: new Date().toLocaleString('id-ID')
             };
 
-            // Simpan lokal
             rekapNilai = rekapNilai.filter(r => r.username !== activeUser.username);
             rekapNilai.push(payload);
             localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
 
-            // Update status siswa
             let sObj = daftarSiswa.find(s => s.username === activeUser.username);
             if(sObj) {
                 sObj.status = "Selesai (" + score + ")";
                 localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
             }
 
-            // Render Tampilan Hasil
             document.getElementById('txt-nilai-akhir').innerText = score;
             document.getElementById('txt-status-lulus').innerText = status;
             document.getElementById('txt-total-benar').innerText = benar;
@@ -713,13 +686,8 @@
             const codeStr = btoa(JSON.stringify(payload));
             document.getElementById('txt-code-hasil').value = codeStr;
 
-            // Generate QR Code
             document.getElementById('qrcode-box').innerHTML = '';
-            new QRCode(document.getElementById('qrcode-box'), {
-                text: codeStr,
-                width: 140,
-                height: 140
-            });
+            new QRCode(document.getElementById('qrcode-box'), { text: codeStr, width: 140, height: 140 });
 
             showView('view-hasil');
         }
@@ -734,197 +702,72 @@
             downloadAnchor.remove();
         }
 
-        // ==========================================
-        // 5. DASHBOARD ADMIN / GURU LOGIC
-        // ==========================================
+        // DASHBOARD ADMIN & SCANNER
         function handleLoginAdmin(e) {
             e.preventDefault();
-            const p = document.getElementById('admin-pass').value;
-            if(p === 'admin123') {
+            if(document.getElementById('admin-pass').value === 'admin123') {
                 showView('view-admin-dashboard');
                 renderAdminTables();
-            } else {
-                alert("Password Admin Salah!");
-            }
+                if(kopSekolahImg) {
+                    document.getElementById('box-preview-kop').classList.remove('hidden');
+                    document.getElementById('img-preview-kop').src = kopSekolahImg;
+                }
+            } else alert("Password Admin Salah!");
         }
 
         function switchAdminTab(tabId) {
-            ['tab-rekap', 'tab-siswa', 'tab-import'].forEach(id => {
+            ['tab-rekap', 'tab-siswa', 'tab-import', 'tab-pengaturan'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById(tabId).classList.remove('hidden');
             renderAdminTables();
+            if(tabId === 'tab-import') bukaScannerQR();
         }
 
         function renderAdminTables() {
-            // Render Rekap Nilai
             const tbodyRekap = document.getElementById('tbl-body-rekap');
-            tbodyRekap.innerHTML = '';
-            if(rekapNilai.length === 0) {
-                tbodyRekap.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data nilai masuk.</td></tr>`;
-            } else {
-                rekapNilai.forEach((r, i) => {
-                    tbodyRekap.innerHTML += `
-                        <tr class="hover:bg-slate-50 border-b">
-                            <td class="p-2.5 border">${i+1}</td>
-                            <td class="p-2.5 border font-mono">${r.username}</td>
-                            <td class="p-2.5 border font-semibold">${r.nama}</td>
-                            <td class="p-2.5 border text-emerald-600 font-bold">${r.benar}</td>
-                            <td class="p-2.5 border text-rose-600 font-bold">${r.salah}</td>
-                            <td class="p-2.5 border font-black text-sm">${r.score}</td>
-                            <td class="p-2.5 border"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.score>=75?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${r.status}</span></td>
-                            <td class="p-2.5 border text-center">
-                                <button onclick="hapusNilai('${r.username}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+            tbodyRekap.innerHTML = rekapNilai.length === 0 ? `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data nilai masuk.</td></tr>` : '';
+            rekapNilai.forEach((r, i) => {
+                tbodyRekap.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-2.5 border">${i+1}</td>
+                        <td class="p-2.5 border font-mono">${r.username}</td>
+                        <td class="p-2.5 border font-semibold">${r.nama}</td>
+                        <td class="p-2.5 border text-emerald-600 font-bold">${r.benar}</td>
+                        <td class="p-2.5 border text-rose-600 font-bold">${r.salah}</td>
+                        <td class="p-2.5 border font-black text-sm">${r.score}</td>
+                        <td class="p-2.5 border"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.score>=75?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${r.status}</span></td>
+                        <td class="p-2.5 border text-center"><button onclick="hapusNilai('${r.username}')" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
 
-            // Render Daftar Siswa
             const tbodySiswa = document.getElementById('tbl-body-siswa');
-            tbodySiswa.innerHTML = '';
-            if(daftarSiswa.length === 0) {
-                tbodySiswa.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">Belum ada akun siswa. Silakan unggah file CSV atau klik Auto Generate.</td></tr>`;
-            } else {
-                daftarSiswa.forEach((s, i) => {
-                    tbodySiswa.innerHTML += `
-                        <tr class="hover:bg-slate-50 border-b">
-                            <td class="p-2.5 border">${i+1}</td>
-                            <td class="p-2.5 border font-mono">${s.username}</td>
-                            <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
-                            <td class="p-2.5 border font-semibold">${s.nama}</td>
-                            <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${s.status || 'Belum Ujian'}</span></td>
-                            <td class="p-2.5 border text-center flex justify-center gap-2">
-                                <button onclick="resetStatusUjian('${s.username}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[10px] font-bold">
-                                    <i class="fa-solid fa-rotate-left"></i> Reset
-                                </button>
-                                <button onclick="hapusSiswaTunggal('${s.username}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1 rounded text-[10px] font-bold">
-                                    <i class="fa-solid fa-xmark"></i> Hapus
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+            tbodySiswa.innerHTML = daftarSiswa.length === 0 ? `<tr><td colspan="7" class="text-center p-4 text-slate-400">Belum ada akun siswa.</td></tr>` : '';
+            daftarSiswa.forEach((s, i) => {
+                tbodySiswa.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-2.5 border">${i+1}</td>
+                        <td class="p-2.5 border font-mono">${s.username}</td>
+                        <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
+                        <td class="p-2.5 border font-semibold">${s.nama}</td>
+                        <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.kehadiran&&s.kehadiran!=='Belum Hadir'?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}">${s.kehadiran || 'Belum Hadir'}</span></td>
+                        <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${s.status || 'Belum Ujian'}</span></td>
+                        <td class="p-2.5 border text-center flex justify-center gap-2">
+                            <button onclick="resetStatusUjian('${s.username}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[10px] font-bold"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+                            <button onclick="hapusSiswaTunggal('${s.username}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1 rounded text-[10px] font-bold"><i class="fa-solid fa-xmark"></i> Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        // ==========================================
-        // 6. MANAJEMEN UNGGAH SISWA KOLEKTIF (CSV)
-        // ==========================================
-        function unggahSiswaCSV() {
-            const fileInput = document.getElementById('file-siswa-csv');
-            const file = fileInput.files[0];
-            if(!file) return alert("Pilih file CSV siswa terlebih dahulu!");
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                const lines = text.split(/\r\n|\n/);
-                let newSiswaCount = 0;
-
-                lines.forEach((line, index) => {
-                    if(index === 0 || !line.trim()) return; // Skip Header
-                    const cols = line.split(',');
-                    if(cols.length >= 3) {
-                        const u = cols[0].replace(/"/g, '').trim();
-                        const p = cols[1].replace(/"/g, '').trim();
-                        const n = cols[2].replace(/"/g, '').trim();
-
-                        if(u && p && n) {
-                            // Replace jika username sudah ada
-                            daftarSiswa = daftarSiswa.filter(s => s.username !== u);
-                            daftarSiswa.push({
-                                username: u,
-                                password: p,
-                                nama: n,
-                                status: 'Belum Ujian'
-                            });
-                            newSiswaCount++;
-                        }
-                    }
-                });
-
-                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-                alert(`BERHASIL: Memproses ${newSiswaCount} data siswa dari file CSV!`);
-                fileInput.value = '';
-                renderAdminTables();
-            };
-            reader.readAsText(file);
-        }
-
-        function tambahSiswaManual(e) {
-            e.preventDefault();
-            const u = document.getElementById('add-username').value.trim();
-            const p = document.getElementById('add-password').value.trim();
-            const n = document.getElementById('add-nama').value.trim();
-
-            if(u && p && n) {
-                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
-                daftarSiswa.push({ username: u, password: p, nama: n, status: 'Belum Ujian' });
-                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-                
-                document.getElementById('add-username').value = '';
-                document.getElementById('add-password').value = '';
-                document.getElementById('add-nama').value = '';
-                
-                renderAdminTables();
-                alert(`Siswa ${n} berhasil ditambahkan!`);
-            }
-        }
-
-        function hapusSiswaTunggal(uname) {
-            if(confirm(`Hapus akun siswa ${uname}?`)) {
-                daftarSiswa = daftarSiswa.filter(s => s.username !== uname);
-                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-                renderAdminTables();
-            }
-        }
-
-        function hapusSemuaSiswa() {
-            if(confirm("YAKIN HAPUS SEMUA AKUN SISWA? Data tidak dapat dikembalikan.")) {
-                daftarSiswa = [];
-                localStorage.setItem('cbt_siswa', JSON.stringify([]));
-                renderAdminTables();
-            }
-        }
-
-        function resetStatusUjian(uname) {
-            if(confirm(`Reset status ujian untuk ${uname}? Siswa dapat melakukan ujian ulang.`)) {
-                rekapNilai = rekapNilai.filter(r => r.username !== uname);
-                localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
-
-                let s = daftarSiswa.find(s => s.username === uname);
-                if(s) s.status = "Belum Ujian";
-                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-
-                renderAdminTables();
-            }
-        }
-
-        function hapusNilai(uname) {
-            resetStatusUjian(uname);
-        }
-
-        function generateAuto36Siswa() {
-            if(confirm("Generate ulang default 36 Akun Siswa? Data akun saat ini akan digantikan.")) {
-                initDefault36Siswa();
-                renderAdminTables();
-            }
-        }
-
-        // ==========================================
-        // 7. QR SCANNER & IMPORT RESULT LOGIC
-        // ==========================================
+        // DUAL FUNCTION SCANNER (NILAI & ABSENSI)
         let html5QrcodeScanner = null;
-
         function bukaScannerQR() {
-            switchAdminTab('tab-import');
             if(!html5QrcodeScanner) {
                 html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
-                html5QrcodeScanner.render((decodedText) => {
-                    prosesKodeTeks(decodedText);
-                });
+                html5QrcodeScanner.render((decodedText) => prosesKodeTeks(decodedText));
             }
         }
 
@@ -936,79 +779,120 @@
         function prosesKodeTeks(codeStr) {
             try {
                 const payload = JSON.parse(atob(codeStr));
-                if(payload.username && payload.score !== undefined) {
-                    rekapNilai = rekapNilai.filter(r => r.username !== payload.username);
-                    rekapNilai.push(payload);
-                    localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
+                if(payload.username) {
+                    let s = daftarSiswa.find(x => x.username === payload.username);
+                    if(s) {
+                        s.kehadiran = "Hadir (Scan " + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ")";
+                        localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                    }
 
-                    let s = daftarSiswa.find(s => s.username === payload.username);
-                    if(s) s.status = "Selesai (" + payload.score + ")";
-                    localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-
-                    alert(`BERHASIL: Nilai ${payload.nama} (${payload.score}) telah direkap!`);
+                    if(payload.score !== undefined) {
+                        rekapNilai = rekapNilai.filter(r => r.username !== payload.username);
+                        rekapNilai.push(payload);
+                        localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
+                        if(s) s.status = "Selesai (" + payload.score + ")";
+                        localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                        alert(`BERHASIL: Absensi & Nilai ${payload.nama} (${payload.score}) terekam!`);
+                    } else {
+                        alert(`BERHASIL: Absensi Kehadiran ${payload.nama} terekam!`);
+                    }
                     document.getElementById('txt-import-code').value = '';
                     renderAdminTables();
                 }
-            } catch(e) {
-                alert("Kode Teks QR Hasil tidak valid!");
+            } catch(e) { alert("Kode QR / Teks tidak valid!"); }
+        }
+
+        // PENGATURAN KOP SEKOLAH
+        function previewKopSekolah(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    kopSekolahImg = evt.target.result;
+                    document.getElementById('box-preview-kop').classList.remove('hidden');
+                    document.getElementById('img-preview-kop').src = kopSekolahImg;
+                };
+                reader.readAsDataURL(file);
             }
         }
 
-        function prosesImportFile() {
-            const fileInput = document.getElementById('file-import-json');
-            const file = fileInput.files[0];
-            if(!file) return alert("Pilih file JSON hasil ujian terlebih dahulu!");
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if(Array.isArray(data)) {
-                        data.forEach(item => { if(item.username) rekapNilai.push(item); });
-                    } else if(data.username) {
-                        rekapNilai.push(data);
-                    }
-                    localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
-                    alert("Import file hasil berhasil!");
-                    renderAdminTables();
-                } catch(err) {
-                    alert("Gagal membaca file JSON!");
-                }
-            };
-            reader.readAsText(file);
+        function simpanKopSekolah() {
+            if(kopSekolahImg) {
+                localStorage.setItem('cbt_kop_sekolah', kopSekolahImg);
+                alert("Gambar Kop Sekolah berhasil disimpan!");
+            }
         }
 
-        // ==========================================
-        // 8. CETAK DOKUMEN & EXPORT
-        // ==========================================
+        // MANAJEMEN CETAK DOKUMEN DENGAN ISOLASI TAMPILAN
+        function executePrint(htmlContent) {
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = htmlContent;
+            window.print();
+            printArea.innerHTML = '';
+        }
+
+        function getKopHTML() {
+            return kopSekolahImg ? `<div style="text-align:center; margin-bottom:15px;"><img src="${kopSekolahImg}" style="max-height:100px; width:auto; display:inline-block;"></div>` : '';
+        }
+
         function cetakKartuSiswa() {
-            let pWin = document.getElementById('print-content');
-            pWin.innerHTML = `
-                <h2 style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:15px;">KARTU PESERTA SUMATIF AKHIR TP (ANBK / TKA STYLE)</h2>
-                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
-                    ${daftarSiswa.map(s => `
-                        <div style="border:1px solid #000; padding:10px; font-size:11px; font-family:sans-serif;">
-                            <div style="font-weight:bold; border-bottom:1px solid #000; padding-bottom:3px; margin-bottom:5px;">SMK NEGERI 1 WAKATOBI - KARTU UJIAN</div>
-                            <div>Nama: <strong>${s.nama}</strong></div>
-                            <div>Username: <strong>${s.username}</strong></div>
-                            <div>Password: <strong>${s.password}</strong></div>
-                            <div>Mapel: Perencanaan & Pengalamatan Jaringan</div>
-                        </div>
-                    `).join('')}
+            const html = `
+                <div style="padding:10px; font-family:sans-serif;">
+                    ${getKopHTML()}
+                    <h2 style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:15px; border-bottom:2px solid #000; pb-2;">KARTU PESERTA SUMATIF AKHIR TP</h2>
+                    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
+                        ${daftarSiswa.map(s => `
+                            <div style="border:1px solid #000; padding:8px; font-size:11px;">
+                                <div style="font-weight:bold; border-bottom:1px solid #000; padding-bottom:2px; margin-bottom:4px;">SMK NEGERI 1 WAKATOBI</div>
+                                <div>Nama: <strong>${s.nama}</strong></div>
+                                <div>Username: <strong>${s.username}</strong></div>
+                                <div>Password: <strong>${s.password}</strong></div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
-            window.print();
+            executePrint(html);
+        }
+
+        function cetakDaftarHadir() {
+            const html = `
+                <div style="padding:10px; font-family:sans-serif;">
+                    ${getKopHTML()}
+                    <h2 style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:5px;">DAFTAR HADIR PESERTA UJIAN SUMATIF AKHIR TP</h2>
+                    <p style="text-align:center; font-size:11px; margin-bottom:15px;">Mata Pelajaran: Perencanaan & Pengalamatan Jaringan</p>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px;" border="1" cellpadding="6">
+                        <thead>
+                            <tr style="background:#eee;">
+                                <th>No</th><th>NISN / Username</th><th>Nama Lengkap</th><th>Status Kehadiran</th><th>Tanda Tangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${daftarSiswa.map((s, i) => `
+                                <tr>
+                                    <td style="text-align:center;">${i+1}</td>
+                                    <td>${s.username}</td>
+                                    <td>${s.nama}</td>
+                                    <td style="text-align:center;">${s.kehadiran || 'Belum Hadir'}</td>
+                                    <td style="width:120px;">${i+1}.</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            executePrint(html);
         }
 
         function cetakArsipSoal() {
-            let pWin = document.getElementById('print-content');
             const labels = ['A', 'B', 'C', 'D', 'E'];
-            pWin.innerHTML = `
-                <h2 style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:5px;">MASTER BANK SOAL & KUNCI JAWABAN (ARSIP GURU)</h2>
-                <p style="text-align:center; font-size:12px; margin-bottom:20px;">Topik: CIDR Kelas C & VLSM (/24 s.d /30)</p>
-                <div style="font-size:12px; font-family:sans-serif; line-height:1.5;">
+            const html = `
+                <div style="padding:10px; font-family:sans-serif; font-size:12px; line-height:1.4;">
+                    ${getKopHTML()}
+                    <h2 style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:4px;">MASTER BANK SOAL & KUNCI JAWABAN</h2>
+                    <p style="text-align:center; font-size:11px; margin-bottom:15px;">Topik: CIDR Kelas C & VLSM (/24 s.d /30)</p>
                     ${MASTER_BANK_SOAL.map((s, i) => `
-                        <div style="margin-bottom:12px; page-break-inside:avoid;">
+                        <div style="margin-bottom:10px; page-break-inside:avoid;">
                             <strong>${i+1}. ${s.q}</strong>
                             <div style="margin-left:15px;">
                                 ${s.a.map((opt, idx) => `
@@ -1021,54 +905,140 @@
                     `).join('')}
                 </div>
             `;
-            window.print();
+            executePrint(html);
         }
 
         function cetakRekapNilai() {
-            let pWin = document.getElementById('print-content');
-            pWin.innerHTML = `
-                <h2 style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:5px;">REKAPITULASI NILAI SUMATIF AKHIR TP</h2>
-                <p style="text-align:center; font-size:12px; margin-bottom:15px;">Mata Pelajaran: Perencanaan & Pengalamatan Jaringan</p>
-                <table style="width:100%; border-collapse:collapse; font-size:11px; font-family:sans-serif;" border="1" cellpadding="5">
-                    <thead>
-                        <tr style="background:#eee;">
-                            <th>No</th><th>NISN/User</th><th>Nama Siswa</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rekapNilai.map((r, i) => `
-                            <tr>
-                                <td>${i+1}</td><td>${r.username}</td><td>${r.nama}</td><td>${r.benar}</td><td>${r.salah}</td><td><strong>${r.score}</strong></td><td>${r.status}</td>
+            const html = `
+                <div style="padding:10px; font-family:sans-serif;">
+                    ${getKopHTML()}
+                    <h2 style="text-align:center; font-weight:bold; font-size:14px; margin-bottom:5px;">REKAPITULASI NILAI SUMATIF AKHIR TP</h2>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px;" border="1" cellpadding="5">
+                        <thead>
+                            <tr style="background:#eee;">
+                                <th>No</th><th>NISN/User</th><th>Nama Siswa</th><th>Benar</th><th>Salah</th><th>Nilai</th><th>Status</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${rekapNilai.map((r, i) => `
+                                <tr>
+                                    <td>${i+1}</td><td>${r.username}</td><td>${r.nama}</td><td>${r.benar}</td><td>${r.salah}</td><td><strong>${r.score}</strong></td><td>${r.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
-            window.print();
+            executePrint(html);
         }
 
+        // UTILS LAINNYA
+        function unggahSiswaCSV() {
+            const file = document.getElementById('file-siswa-csv').files[0];
+            if(!file) return alert("Pilih file CSV siswa terlebih dahulu!");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r\n|\n/);
+                let count = 0;
+                lines.forEach((line, idx) => {
+                    if(idx===0 || !line.trim()) return;
+                    const cols = line.split(',');
+                    if(cols.length>=3) {
+                        const u=cols[0].replace(/"/g,'').trim(), p=cols[1].replace(/"/g,'').trim(), n=cols[2].replace(/"/g,'').trim();
+                        if(u&&p&&n) {
+                            daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                            daftarSiswa.push({ username: u, password: p, nama: n, kehadiran: 'Belum Hadir', status: 'Belum Ujian' });
+                            count++;
+                        }
+                    }
+                });
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                alert(`BERHASIL: Memproses ${count} data siswa dari file CSV!`);
+                renderAdminTables();
+            };
+            reader.readAsText(file);
+        }
+
+        function tambahSiswaManual(e) {
+            e.preventDefault();
+            const u = document.getElementById('add-username').value.trim();
+            const p = document.getElementById('add-password').value.trim();
+            const n = document.getElementById('add-nama').value.trim();
+            if(u&&p&&n) {
+                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                daftarSiswa.push({ username: u, password: p, nama: n, kehadiran: 'Belum Hadir', status: 'Belum Ujian' });
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                renderAdminTables();
+            }
+        }
+
+        function hapusSiswaTunggal(u) {
+            if(confirm(`Hapus akun ${u}?`)) {
+                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                renderAdminTables();
+            }
+        }
+
+        function hapusSemuaSiswa() {
+            if(confirm("YAKIN HAPUS SEMUA AKUN SISWA?")) {
+                daftarSiswa = [];
+                localStorage.setItem('cbt_siswa', JSON.stringify([]));
+                renderAdminTables();
+            }
+        }
+
+        function resetStatusUjian(uname) {
+            if(confirm(`Reset status ujian untuk ${uname}?`)) {
+                rekapNilai = rekapNilai.filter(r => r.username !== uname);
+                localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
+                let s = daftarSiswa.find(s => s.username === uname);
+                if(s) s.status = "Belum Ujian";
+                localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                renderAdminTables();
+            }
+        }
+
+        function hapusNilai(uname) { resetStatusUjian(uname); }
+        function generateAuto36Siswa() { if(confirm("Generate ulang default 36 Akun Siswa?")) { initDefault36Siswa(); renderAdminTables(); } }
+        
         function exportExcelCSV() {
             let csv = "No,Username,Nama,Benar,Salah,Nilai,Status\n";
-            rekapNilai.forEach((r, i) => {
-                csv += `${i+1},"${r.username}","${r.nama}",${r.benar},${r.salah},${r.score},${r.status}\n`;
-            });
+            rekapNilai.forEach((r, i) => { csv += `${i+1},"${r.username}","${r.nama}",${r.benar},${r.salah},${r.score},${r.status}\n`; });
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'Rekap_Nilai_CBT.csv');
+            a.href = window.URL.createObjectURL(blob);
+            a.download = 'Rekap_Nilai_CBT.csv';
             a.click();
         }
 
         function downloadCSVTemplate() {
-            let csv = "username,password,nama\nuser01,pass01,Nama Siswa 1\nuser02,pass02,Nama Siswa 2\nuser03,pass03,Nama Siswa 3\n";
+            let csv = "username,password,nama\nuser01,pass01,Nama Siswa 1\nuser02,pass02,Nama Siswa 2\n";
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'Template_Siswa.csv');
+            a.href = window.URL.createObjectURL(blob);
+            a.download = 'Template_Siswa.csv';
             a.click();
+        }
+
+        function prosesImportFile() {
+            const file = document.getElementById('file-import-json').files[0];
+            if(!file) return alert("Pilih file JSON!");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(Array.isArray(data)) data.forEach(item => { if(item.username) rekapNilai.push(item); });
+                    else if(data.username) rekapNilai.push(data);
+                    localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
+                    alert("Import file hasil berhasil!");
+                    renderAdminTables();
+                } catch(err) { alert("Gagal membaca file!"); }
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
 </html>
+
+```
