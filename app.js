@@ -80,7 +80,7 @@ const Utils = {
 };
 
 // ==========================================
-// 3. MODUL QUIZ ENGINE (ACAK SOAL & OPSI)
+// 3. MODUL QUIZ ENGINE (PENGACAKAN SOAL & KUNCI)
 // ==========================================
 const QuizEngine = {
     activeSoal: [],
@@ -142,13 +142,22 @@ const QuizEngine = {
         current.a.forEach((optText, idx) => {
             const isSelected = this.answers[this.currentIndex] === idx;
             const btn = document.createElement('div');
-            btn.className = `p-3.5 rounded-xl border cursor-pointer text-xs md:text-sm flex items-center gap-3 transition ${isSelected ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'}`;
+            btn.className = `p-4 rounded-2xl border cursor-pointer text-sm flex items-center gap-3.5 transition duration-150 ${
+                isSelected 
+                ? 'bg-indigo-600/15 border-indigo-500 text-indigo-200 font-semibold shadow-inner' 
+                : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/60 hover:border-slate-700 text-slate-300'
+            }`;
             btn.onclick = () => {
                 this.answers[this.currentIndex] = idx;
                 this.renderQuestion();
                 this.renderNavigator();
             };
-            btn.innerHTML = `<span class="w-7 h-7 rounded-lg flex items-center justify-center font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-white border'}">${labels[idx]}</span><span>${optText}</span>`;
+            btn.innerHTML = `
+                <span class="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                    isSelected ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-900 border border-slate-700 text-slate-400'
+                }">${labels[idx]}</span>
+                <span class="leading-relaxed">${optText}</span>
+            `;
             boxOpsi.appendChild(btn);
         });
 
@@ -173,13 +182,13 @@ const QuizEngine = {
             const isAnswered = this.answers[i] !== undefined;
             const isRagu = this.ragu[i];
 
-            let bgClass = "bg-slate-100 text-slate-700 border-slate-300";
-            if(isRagu) bgClass = "bg-amber-400 text-slate-900 font-bold";
-            else if(isAnswered) bgClass = "bg-blue-600 text-white font-bold";
-            if(isCurrent) bgClass += " ring-2 ring-slate-900 ring-offset-1";
+            let bgClass = "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700";
+            if(isRagu) bgClass = "bg-amber-500 text-slate-950 font-bold border-amber-400";
+            else if(isAnswered) bgClass = "bg-indigo-600 text-white font-bold border-indigo-500";
+            if(isCurrent) bgClass += " ring-2 ring-white ring-offset-2 ring-offset-slate-900";
 
             const btn = document.createElement('button');
-            btn.className = `h-9 rounded-lg text-xs flex items-center justify-center transition ${bgClass}`;
+            btn.className = `h-10 rounded-xl text-xs flex items-center justify-center border transition ${bgClass}`;
             btn.innerText = i + 1;
             btn.onclick = () => { this.currentIndex = i; this.renderQuestion(); };
             grid.appendChild(btn);
@@ -488,34 +497,34 @@ const App = {
 
     renderAdminTables() {
         const tbodyRekap = document.getElementById('tbl-body-rekap');
-        tbodyRekap.innerHTML = this.rekapNilai.length === 0 ? `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data nilai.</td></tr>` : '';
+        tbodyRekap.innerHTML = this.rekapNilai.length === 0 ? `<tr><td colspan="8" class="text-center p-6 text-slate-500">Belum ada data nilai tersimpan.</td></tr>` : '';
         this.rekapNilai.forEach((r, i) => {
             tbodyRekap.innerHTML += `
-                <tr class="hover:bg-slate-50 border-b">
-                    <td class="p-2.5 border">${i+1}</td>
-                    <td class="p-2.5 border font-mono font-bold">${r.username}</td>
-                    <td class="p-2.5 border font-semibold">${r.nama}</td>
-                    <td class="p-2.5 border text-emerald-600 font-bold">${r.benar}</td>
-                    <td class="p-2.5 border text-rose-600 font-bold">${r.salah}</td>
-                    <td class="p-2.5 border font-black text-sm">${r.score}</td>
-                    <td class="p-2.5 border"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.score>=75?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}">${r.status}</span></td>
-                    <td class="p-2.5 border text-center"><button onclick="App.resetUjian('${r.username}')" class="text-rose-600"><i class="fa-solid fa-trash"></i></button></td>
+                <tr class="hover:bg-slate-950 border-b border-slate-800/60 transition">
+                    <td class="p-3 text-slate-400">${i+1}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-400">${r.username}</td>
+                    <td class="p-3 font-semibold text-slate-200">${r.nama}</td>
+                    <td class="p-3 text-emerald-400 font-bold">${r.benar}</td>
+                    <td class="p-3 text-rose-400 font-bold">${r.salah}</td>
+                    <td class="p-3 font-black text-sm text-white">${r.score}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${r.score>=75?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">${r.status}</span></td>
+                    <td class="p-3 text-center"><button onclick="App.resetUjian('${r.username}')" class="text-rose-400 hover:text-rose-300 transition"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>
             `;
         });
 
         const tbodySiswa = document.getElementById('tbl-body-siswa');
-        tbodySiswa.innerHTML = this.daftarSiswa.length === 0 ? `<tr><td colspan="7" class="text-center p-4 text-slate-400">Belum ada data siswa.</td></tr>` : '';
+        tbodySiswa.innerHTML = this.daftarSiswa.length === 0 ? `<tr><td colspan="7" class="text-center p-6 text-slate-500">Belum ada data siswa.</td></tr>` : '';
         this.daftarSiswa.forEach((s, i) => {
             tbodySiswa.innerHTML += `
-                <tr class="hover:bg-slate-50 border-b">
-                    <td class="p-2.5 border">${i+1}</td>
-                    <td class="p-2.5 border font-mono font-bold text-blue-700">${s.username}</td>
-                    <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
-                    <td class="p-2.5 border font-semibold">${s.nama}</td>
-                    <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.kehadiran&&s.kehadiran!=='Belum Hadir'?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}">${s.kehadiran || 'Belum Hadir'}</span></td>
-                    <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${s.status || 'Belum Ujian'}</span></td>
-                    <td class="p-2.5 border text-center"><button onclick="App.resetUjian('${s.username}')" class="bg-amber-500 text-white px-2 py-1 rounded text-[10px] font-bold">Reset</button></td>
+                <tr class="hover:bg-slate-950 border-b border-slate-800/60 transition">
+                    <td class="p-3 text-slate-400">${i+1}</td>
+                    <td class="p-3 font-mono font-bold text-indigo-400">${s.username}</td>
+                    <td class="p-3 font-mono text-slate-500">${s.password}</td>
+                    <td class="p-3 font-semibold text-slate-200">${s.nama}</td>
+                    <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${s.kehadiran&&s.kehadiran!=='Belum Hadir'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-slate-800 text-slate-400'}">${s.kehadiran || 'Belum Hadir'}</span></td>
+                    <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-800 text-slate-300">${s.status || 'Belum Ujian'}</span></td>
+                    <td class="p-3 text-center"><button onclick="App.resetUjian('${s.username}')" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">Reset</button></td>
                 </tr>
             `;
         });

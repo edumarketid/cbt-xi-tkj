@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* Custom Global Styling & Print System */
 body { 
-    font-family: 'Inter', sans-serif; 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
     user-select: none; 
 }
 
@@ -14,13 +13,30 @@ body {
     user-select: none; 
 }
 
-/* Isolasi Cetak Dokumen */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Isolasi Cetak: Memastikan halaman cetak otomatis berlatar putih bersih dan rapi */
 @media print {
     body * { 
         visibility: hidden !important; 
     }
     #print-area, #print-area * { 
         visibility: visible !important; 
+        color: #000 !important;
     }
     #print-area { 
         position: absolute !important; 
@@ -29,6 +45,7 @@ body {
         width: 100% !important; 
         margin: 0 !important; 
         padding: 0 !important; 
+        background: #ffffff !important;
     }
     .page-break { 
         page-break-after: always; 

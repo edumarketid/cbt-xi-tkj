@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full bg-slate-900">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,301 +8,318 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- QR Code Generator & Scanner Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- Custom Stylesheet Terpisah -->
+    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased min-h-screen no-select" oncontextmenu="return false;">
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col no-select" oncontextmenu="return false;">
 
-    <!-- APP CONTAINER -->
-    <div id="app" class="min-h-screen flex flex-col">
+    <!-- HEADER TOP BAR -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3.5">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold shadow-inner">
+                    <i class="fa-solid fa-network-wired text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg leading-tight tracking-tight text-white">CBT SUMATIF AKHIR TP</h1>
+                    <p class="text-xs text-indigo-300 font-medium">Teknik Komputer dan Jaringan • CIDR & VLSM</p>
+                </div>
+            </div>
+            <div id="header-right-info" class="flex items-center space-x-3">
+                <button id="btn-admin-login" onclick="App.showView('view-admin-login')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition duration-200 shadow-sm">
+                    <i class="fa-solid fa-user-gear text-indigo-400"></i> <span class="hidden sm:inline">Panel Guru</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-        <!-- HEADER TOP BAR -->
-        <header class="bg-blue-700 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <i class="fa-solid fa-network-wired text-2xl text-blue-200"></i>
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col">
+
+        <!-- 1. VIEW LOGIN SISWA -->
+        <section id="view-login" class="flex-1 flex items-center justify-center py-8">
+            <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-10 w-full max-w-md backdrop-blur-xl">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-inner">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white tracking-tight">Login Peserta Ujian</h2>
+                    <p class="text-xs text-slate-400 mt-1.5">Masukkan Username (contoh: <span class="font-mono text-indigo-400">S017</span>) & Password</p>
+                </div>
+
+                <form id="form-login-siswa" onsubmit="App.handleLoginSiswa(event)" class="space-y-5">
                     <div>
-                        <h1 class="font-bold text-lg leading-tight">CBT SUMATIF AKHIR TP</h1>
-                        <p class="text-xs text-blue-200">Teknik Komputer dan Jaringan - CIDR & VLSM</p>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Username / NISN</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="text" id="login-username" required class="w-full pl-10 pr-4 py-3 bg-slate-950 rounded-xl border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none text-sm font-mono text-white placeholder-slate-600 transition" placeholder="S017">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="password" id="login-password" required class="w-full pl-10 pr-4 py-3 bg-slate-950 rounded-xl border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none text-sm text-white placeholder-slate-600 transition" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-indigo-600/25 transition duration-200 text-sm flex items-center justify-center gap-2 mt-2">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk Ruang Ujian
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 2. VIEW KONFIRMASI UJIAN -->
+        <section id="view-konfirmasi" class="hidden flex-1 flex items-center justify-center py-8">
+            <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-10 w-full max-w-lg">
+                <div class="border-b border-slate-800 pb-5 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Konfirmasi Data Ujian</h2>
+                        <p class="text-xs text-slate-400">Pastikan data peserta sudah benar</p>
                     </div>
                 </div>
-                <div id="header-right-info" class="flex items-center space-x-3">
-                    <button id="btn-admin-login" onclick="App.showView('view-admin-login')" class="bg-blue-800 hover:bg-blue-900 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition">
-                        <i class="fa-solid fa-user-gear"></i> Panel Guru
+                <div class="space-y-3.5 text-sm mb-8">
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">Nama Lengkap</span><span id="konf-nama" class="font-semibold text-white">-</span></div>
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">NISN / Username</span><span id="konf-user" class="font-semibold text-indigo-400 font-mono">-</span></div>
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">Mata Pelajaran</span><span class="font-semibold text-white">Perencanaan & Pengalamatan Jaringan</span></div>
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">Materi</span><span class="font-semibold text-emerald-400">CIDR Kelas C & VLSM (/24 - /30)</span></div>
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">Jumlah Soal</span><span class="font-semibold text-white">25 Soal (Soal & Opsi Acak)</span></div>
+                    <div class="flex justify-between py-2 border-b border-slate-800/60"><span class="text-slate-400">Alokasi Waktu</span><span class="font-semibold text-white">45 Menit</span></div>
+                </div>
+                <button onclick="QuizEngine.mulaiUjian()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-emerald-600/25 transition duration-200 text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Mengerjakan Ujian
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. VIEW UTAMA EXAM CBT -->
+        <section id="view-exam" class="hidden flex-1 flex flex-col md:flex-row gap-5">
+            <div class="flex-1 bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 md:p-8 flex flex-col">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
+                    <span class="text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3.5 py-1.5 rounded-xl" id="txt-nomor-soal">Soal No. 1 dari 25</span>
+                    <div class="flex items-center space-x-2 bg-slate-950 text-emerald-400 font-mono text-sm font-bold px-4 py-2 rounded-xl border border-slate-800">
+                        <i class="fa-regular fa-clock text-xs"></i>
+                        <span id="txt-timer">45:00</span>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto mb-6 pr-2">
+                    <div id="box-soal-konten" class="text-base md:text-lg text-slate-100 font-medium leading-relaxed mb-6"></div>
+                    <div id="box-opsi-jawaban" class="space-y-3"></div>
+                </div>
+
+                <div class="pt-5 border-t border-slate-800 flex justify-between items-center gap-3">
+                    <button onclick="QuizEngine.soalPrev()" id="btn-prev" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-xs md:text-sm border border-slate-700 flex items-center gap-2 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                    </button>
+                    <label class="flex items-center gap-2 cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 px-3.5 py-2.5 rounded-xl border border-amber-500/30 transition text-xs font-semibold text-amber-400">
+                        <input type="checkbox" id="chk-ragu" onchange="QuizEngine.toggleRagu()" class="rounded border-amber-500/50 bg-slate-950 text-amber-500 focus:ring-amber-500/20">
+                        <span>Ragu-ragu</span>
+                    </label>
+                    <button onclick="QuizEngine.soalNext()" id="btn-next" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs md:text-sm flex items-center gap-2 transition shadow-md shadow-indigo-600/20">
+                        Selanjutnya <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
-        </header>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col">
-
-            <!-- 1. VIEW LOGIN SISWA -->
-            <section id="view-login" class="flex-1 flex items-center justify-center py-8">
-                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 w-full max-w-md">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
-                            <i class="fa-solid fa-laptop-code"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-slate-800">Login Peserta Ujian</h2>
-                        <p class="text-xs text-slate-500 mt-1">Masukkan Username (misal: S017) & Password</p>
-                    </div>
-
-                    <form id="form-login-siswa" onsubmit="App.handleLoginSiswa(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username / NISN</label>
-                            <input type="text" id="login-username" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm font-mono" placeholder="Contoh: S017">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password</label>
-                            <input type="password" id="login-password" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••">
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-blue-500/30 transition text-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-to-bracket"></i> Masuk Ruang Ujian
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 2. VIEW KONFIRMASI UJIAN -->
-            <section id="view-konfirmasi" class="hidden flex-1 flex items-center justify-center py-8">
-                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 w-full max-w-lg">
-                    <div class="border-b border-slate-100 pb-4 mb-4">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-file-signature text-blue-600"></i> Konfirmasi Data Ujian
-                        </h2>
-                    </div>
-                    <div class="space-y-3 text-sm mb-6">
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">Nama Lengkap</span><span id="konf-nama" class="font-semibold text-slate-800">-</span></div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">NISN / Username</span><span id="konf-user" class="font-semibold text-slate-800 font-mono">-</span></div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">Mata Pelajaran</span><span class="font-semibold text-slate-800">Perencanaan & Pengalamatan Jaringan</span></div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">Materi</span><span class="font-semibold text-blue-600">CIDR Kelas C & VLSM (/24 - /30)</span></div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">Jumlah Soal</span><span class="font-semibold text-slate-800">25 Soal (Soal & Opsi Acak)</span></div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50"><span class="text-slate-500">Alokasi Waktu</span><span class="font-semibold text-slate-800">45 Menit</span></div>
-                    </div>
-                    <button onclick="QuizEngine.mulaiUjian()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-emerald-500/30 transition text-sm flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-play"></i> Mulai Mengerjakan Ujian
+            <div class="w-full md:w-80 bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 flex flex-col">
+                <h3 class="font-bold text-sm text-slate-200 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-table-cells text-indigo-400"></i> Navigator Soal
+                </h3>
+                <div id="grid-navigator" class="grid grid-cols-5 gap-2.5 mb-6"></div>
+                <div class="mt-auto pt-4 border-t border-slate-800">
+                    <button onclick="QuizEngine.konfirmasiSelesai()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-semibold py-3 rounded-xl text-xs md:text-sm shadow-lg shadow-rose-600/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Selesaikan Ujian
                     </button>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- 3. VIEW UTAMA EXAM CBT -->
-            <section id="view-exam" class="hidden flex-1 flex flex-col md:flex-row gap-4">
-                <div class="flex-1 bg-white rounded-2xl shadow-md border border-slate-200 p-5 md:p-6 flex flex-col">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
-                        <span class="text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-3 py-1 rounded-full" id="txt-nomor-soal">Soal No. 1 dari 25</span>
-                        <div class="flex items-center space-x-2 bg-slate-900 text-emerald-400 font-mono text-sm font-bold px-3 py-1.5 rounded-lg shadow-inner">
-                            <i class="fa-regular fa-clock"></i>
-                            <span id="txt-timer">45:00</span>
-                        </div>
-                    </div>
+        <!-- 4. VIEW HASIL SISWA -->
+        <section id="view-hasil" class="hidden flex-1 flex flex-col items-center justify-center py-6">
+            <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-10 w-full max-w-xl text-center">
+                <div class="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white mb-1">Ujian Telah Selesai!</h2>
+                <p class="text-xs text-slate-400 mb-6">Hasil nilai akhir Anda telah tercatat dalam sistem</p>
 
-                    <div class="flex-1 overflow-y-auto mb-6 pr-2">
-                        <div id="box-soal-konten" class="text-sm md:text-base text-slate-800 font-medium leading-relaxed mb-6"></div>
-                        <div id="box-opsi-jawaban" class="space-y-3"></div>
-                    </div>
-
-                    <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
-                        <button onclick="QuizEngine.soalPrev()" id="btn-prev" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-xs md:text-sm flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
-                        </button>
-                        <label class="flex items-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-lg border border-amber-300 transition text-xs font-medium text-amber-800">
-                            <input type="checkbox" id="chk-ragu" onchange="QuizEngine.toggleRagu()" class="rounded text-amber-600 focus:ring-amber-500">
-                            <span>Ragu-ragu</span>
-                        </label>
-                        <button onclick="QuizEngine.soalNext()" id="btn-next" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-xs md:text-sm flex items-center gap-1.5 transition">
-                            Selanjutnya <i class="fa-solid fa-arrow-right"></i>
-                        </button>
+                <div class="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 text-white rounded-2xl p-6 mb-6 shadow-inner">
+                    <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-1">Nilai Akhir Anda</p>
+                    <div id="txt-nilai-akhir" class="text-6xl font-black tracking-tight text-emerald-400 my-2">0</div>
+                    <p id="txt-status-lulus" class="text-xs font-bold uppercase px-3 py-1 rounded-full inline-block bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">-</p>
+                    <div class="grid grid-cols-2 gap-4 border-t border-slate-800/80 mt-4 pt-4 text-xs">
+                        <div><span class="text-slate-400 block mb-1">Jawaban Benar</span><strong id="txt-total-benar" class="text-emerald-400 text-lg">0</strong></div>
+                        <div><span class="text-slate-400 block mb-1">Jawaban Salah</span><strong id="txt-total-salah" class="text-rose-400 text-lg">0</strong></div>
                     </div>
                 </div>
 
-                <div class="w-full md:w-72 bg-white rounded-2xl shadow-md border border-slate-200 p-5 flex flex-col">
-                    <h3 class="font-bold text-sm text-slate-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-table-cells text-blue-600"></i> Navigator Soal
-                    </h3>
-                    <div id="grid-navigator" class="grid grid-cols-5 gap-2 mb-6"></div>
-                    <div class="mt-auto space-y-3">
-                        <button onclick="QuizEngine.konfirmasiSelesai()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-lg text-xs md:text-sm shadow-md transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i> Selesaikan Ujian
-                        </button>
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6">
+                    <p class="text-xs font-semibold text-slate-300 mb-3">QR Code Bukti Hasil Ujian:</p>
+                    <div id="qrcode-box" class="flex justify-center p-3 bg-white rounded-xl inline-block border shadow-sm"></div>
+                    <p class="text-[11px] text-slate-500 mt-3">Kode Teks Hasil Mandiri:</p>
+                    <input type="text" id="txt-code-hasil" readonly onclick="this.select()" class="w-full text-center font-mono text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 mt-1 text-slate-300 focus:outline-none" value="-">
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="QuizEngine.downloadHasilJSON()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 transition">
+                        <i class="fa-solid fa-download text-indigo-400"></i> Unduh JSON
+                    </button>
+                    <button onclick="location.reload()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition">
+                        <i class="fa-solid fa-house"></i> Halaman Awal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. VIEW LOGIN ADMIN -->
+        <section id="view-admin-login" class="hidden flex-1 flex items-center justify-center py-8">
+            <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-8 w-full max-w-md">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-slate-800 border border-slate-700 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Login Panel Guru</h2>
+                    <p class="text-xs text-slate-400 mt-1">Khusus Pengelola & Guru Pengampu</p>
+                </div>
+
+                <form onsubmit="App.handleLoginAdmin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Password Admin</label>
+                        <input type="password" id="admin-pass" required class="w-full px-4 py-3 bg-slate-950 rounded-xl border border-slate-800 focus:border-indigo-500 focus:outline-none text-sm text-white placeholder-slate-600" placeholder="Default: admin123">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold py-3 rounded-xl text-sm transition">
+                        Masuk Dashboard Admin
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 6. VIEW DASHBOARD ADMIN GURU -->
+        <section id="view-admin-dashboard" class="hidden flex-1 flex flex-col space-y-6">
+            <div class="bg-slate-900/90 rounded-3xl p-5 shadow-xl border border-slate-800 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center space-x-3.5">
+                    <span class="w-11 h-11 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-chart-line text-lg"></i>
+                    </span>
+                    <div>
+                        <h2 class="font-bold text-white text-base">Dashboard Manajemen Ujian</h2>
+                        <p class="text-xs text-slate-400">Modular CBT Engine • SMKN 1 Wakatobi</p>
                     </div>
                 </div>
-            </section>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="PrintService.cetakKartuSiswa()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-id-card text-indigo-400"></i> Kartu</button>
+                    <button onclick="PrintService.cetakDaftarHadir()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-clipboard-user text-emerald-400"></i> Absensi</button>
+                    <button onclick="PrintService.cetakArsipSoal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-print text-amber-400"></i> Soal</button>
+                    <button onclick="PrintService.cetakRekapNilai()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-rose-400"></i> Rekap</button>
+                    <button onclick="App.showView('view-login')" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-3 py-2 rounded-xl text-xs font-semibold">Keluar</button>
+                </div>
+            </div>
 
-            <!-- 4. VIEW HASIL SISWA -->
-            <section id="view-hasil" class="hidden flex-1 flex flex-col items-center justify-center py-6">
-                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 w-full max-w-xl text-center">
-                    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                        <i class="fa-solid fa-square-check"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800 mb-1">Ujian Telah Selesai!</h2>
+            <div class="bg-slate-900/90 rounded-3xl shadow-xl border border-slate-800 overflow-hidden flex flex-col flex-1">
+                <div class="flex border-b border-slate-800 bg-slate-950 text-xs font-semibold overflow-x-auto">
+                    <button onclick="App.switchAdminTab('tab-rekap')" id="btn-tab-rekap" class="px-6 py-3.5 border-b-2 border-indigo-500 text-indigo-400 bg-slate-900/50">Rekapitulasi Nilai</button>
+                    <button onclick="App.switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-6 py-3.5 text-slate-400 hover:text-slate-200">Daftar Akun Siswa</button>
+                    <button onclick="App.switchAdminTab('tab-import')" id="btn-tab-import" class="px-6 py-3.5 text-slate-400 hover:text-slate-200">Scan QR Absensi & Nilai</button>
+                    <button onclick="App.switchAdminTab('tab-pengaturan')" id="btn-tab-pengaturan" class="px-6 py-3.5 text-slate-400 hover:text-slate-200">Kop Sekolah</button>
+                </div>
 
-                    <div class="bg-gradient-to-br from-slate-900 to-blue-900 text-white rounded-2xl p-6 mb-6 shadow-inner">
-                        <p class="text-xs uppercase tracking-widest text-blue-200 mb-1">Nilai Akhir Anda</p>
-                        <div id="txt-nilai-akhir" class="text-5xl font-black tracking-tight text-emerald-400 my-2">0</div>
-                        <p id="txt-status-lulus" class="text-xs font-semibold uppercase px-3 py-1 rounded-full inline-block bg-emerald-500/20 text-emerald-300">-</p>
-                        <div class="grid grid-cols-2 gap-4 border-t border-blue-800/60 mt-4 pt-4 text-xs">
-                            <div><span class="text-slate-400 block">Jawaban Benar</span><strong id="txt-total-benar" class="text-emerald-400 text-base">0</strong></div>
-                            <div><span class="text-slate-400 block">Jawaban Salah</span><strong id="txt-total-salah" class="text-rose-400 text-base">0</strong></div>
+                <!-- TAB 1: REKAP -->
+                <div id="tab-rekap" class="p-6 overflow-x-auto flex-1">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                                <th class="p-3">No</th>
+                                <th class="p-3">Username</th>
+                                <th class="p-3">Nama Siswa</th>
+                                <th class="p-3">Benar</th>
+                                <th class="p-3">Salah</th>
+                                <th class="p-3">Nilai</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-body-rekap"></tbody>
+                    </table>
+                </div>
+
+                <!-- TAB 2: SISWA -->
+                <div id="tab-siswa" class="hidden p-6 flex-1 space-y-6">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-400"></i> Unggah Daftar Siswa (CSV)</h4>
+                                <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-400 mb-3 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
+                            </div>
+                            <button onclick="App.unggahSiswaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition">Unggah CSV</button>
+                        </div>
+
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i> Auto Generate S001-S036</h4>
+                                <p class="text-[11px] text-slate-500 mb-3">Buat otomatis 36 akun siswa bawaan lengkap.</p>
+                            </div>
+                            <button onclick="App.generateAuto36Siswa()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-semibold transition">Generate 36 Siswa</button>
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
-                        <p class="text-xs font-semibold text-slate-600 mb-2">Tunjukkan QR Code ini kepada Guru untuk Scan Absensi / Hasil:</p>
-                        <div id="qrcode-box" class="flex justify-center p-2 bg-white rounded-lg inline-block border shadow-sm"></div>
-                        <p class="text-[10px] text-slate-400 mt-2">Kode Teks Hasil Mandiri:</p>
-                        <input type="text" id="txt-code-hasil" readonly onclick="this.select()" class="w-full text-center font-mono text-[11px] bg-white border rounded px-2 py-1 mt-1 text-slate-600" value="-">
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button onclick="QuizEngine.downloadHasilJSON()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 border">
-                            <i class="fa-solid fa-download"></i> Unduh File JSON
-                        </button>
-                        <button onclick="location.reload()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-solid fa-house"></i> Kembali ke Awal
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 5. VIEW LOGIN ADMIN -->
-            <section id="view-admin-login" class="hidden flex-1 flex items-center justify-center py-8">
-                <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 w-full max-w-md">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
-                            <i class="fa-solid fa-user-shield"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-slate-800">Login Panel Guru</h2>
-                    </div>
-
-                    <form onsubmit="App.handleLoginAdmin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password Admin</label>
-                            <input type="password" id="admin-pass" required class="w-full px-4 py-2.5 rounded-lg border text-sm" placeholder="Default: admin123">
-                        </div>
-                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg text-sm">
-                            Masuk Dashboard Admin
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- 6. VIEW DASHBOARD ADMIN GURU -->
-            <section id="view-admin-dashboard" class="hidden flex-1 flex flex-col space-y-6">
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-4">
-                    <div class="flex items-center space-x-3">
-                        <span class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-chart-line"></i>
-                        </span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base">Dashboard Manajemen Ujian</h2>
-                            <p class="text-xs text-slate-500">Modular Engine CBT - SMKN 1 Wakatobi</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="PrintService.cetakKartuSiswa()" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-id-card"></i> Cetak Kartu</button>
-                        <button onclick="PrintService.cetakDaftarHadir()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-clipboard-user"></i> Cetak Daftar Hadir</button>
-                        <button onclick="PrintService.cetakArsipSoal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-print"></i> Cetak Bank Soal</button>
-                        <button onclick="PrintService.cetakRekapNilai()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-solid fa-file-pdf"></i> Cetak Rekap Nilai</button>
-                        <button onclick="App.showView('view-login')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-2 rounded-lg text-xs font-semibold">Keluar</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col flex-1">
-                    <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
-                        <button onclick="App.switchAdminTab('tab-rekap')" id="btn-tab-rekap" class="px-5 py-3 border-b-2 border-blue-600 text-blue-600 bg-white">Rekapitulasi Nilai</button>
-                        <button onclick="App.switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-5 py-3 text-slate-600 hover:text-slate-800">Daftar Akun Siswa</button>
-                        <button onclick="App.switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Scan QR Absensi & Nilai</button>
-                        <button onclick="App.switchAdminTab('tab-pengaturan')" id="btn-tab-pengaturan" class="px-5 py-3 text-slate-600 hover:text-slate-800">Kop Sekolah</button>
-                    </div>
-
-                    <!-- TAB 1: REKAP -->
-                    <div id="tab-rekap" class="p-5 overflow-x-auto flex-1">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
-                                    <th class="p-2.5 border">No</th>
-                                    <th class="p-2.5 border">Username</th>
-                                    <th class="p-2.5 border">Nama Siswa</th>
-                                    <th class="p-2.5 border">Benar</th>
-                                    <th class="p-2.5 border">Salah</th>
-                                    <th class="p-2.5 border">Nilai</th>
-                                    <th class="p-2.5 border">Status</th>
-                                    <th class="p-2.5 border text-center">Aksi</th>
+                                <tr class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Password</th>
+                                    <th class="p-3">Nama Lengkap</th>
+                                    <th class="p-3 text-center">Kehadiran</th>
+                                    <th class="p-3 text-center">Status Ujian</th>
+                                    <th class="p-3 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbl-body-rekap"></tbody>
+                            <tbody id="tbl-body-siswa"></tbody>
                         </table>
                     </div>
+                </div>
 
-                    <!-- TAB 2: SISWA -->
-                    <div id="tab-siswa" class="hidden p-5 flex-1 space-y-6">
-                        <div class="grid md:grid-cols-2 gap-4 bg-slate-50 p-4 border rounded-xl">
-                            <div class="bg-white p-4 rounded-lg border flex flex-col justify-between">
-                                <div>
-                                    <h4 class="font-bold text-xs uppercase mb-1"><i class="fa-solid fa-file-csv text-emerald-600"></i> Unggah Daftar Siswa (CSV)</h4>
-                                    <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-500 mb-3">
-                                </div>
-                                <button onclick="App.unggahSiswaCSV()" class="bg-emerald-600 text-white px-3 py-2 rounded text-xs font-semibold">Unggah CSV</button>
-                            </div>
-
-                            <div class="bg-white p-4 rounded-lg border flex flex-col justify-between">
-                                <h4 class="font-bold text-xs uppercase mb-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto Generate S001-S036</h4>
-                                <button onclick="App.generateAuto36Siswa()" class="bg-slate-800 text-white py-2 rounded text-xs font-semibold">Generate 36 Siswa</button>
-                            </div>
+                <!-- TAB 3: SCANNER -->
+                <div id="tab-import" class="hidden p-6 flex-1 space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl">
+                            <h4 class="font-bold text-xs uppercase text-slate-300 mb-3 flex items-center gap-2"><i class="fa-solid fa-camera text-indigo-400"></i> Kamera QR (Absensi & Nilai)</h4>
+                            <div id="qr-reader" class="w-full rounded-xl border border-slate-800 overflow-hidden bg-slate-900"></div>
                         </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-100 uppercase font-semibold">
-                                        <th class="p-2.5 border">No</th>
-                                        <th class="p-2.5 border">Username</th>
-                                        <th class="p-2.5 border">Password</th>
-                                        <th class="p-2.5 border">Nama Lengkap</th>
-                                        <th class="p-2.5 border text-center">Kehadiran</th>
-                                        <th class="p-2.5 border text-center">Status Ujian</th>
-                                        <th class="p-2.5 border text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbl-body-siswa"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- TAB 3: SCANNER -->
-                    <div id="tab-import" class="hidden p-5 flex-1 space-y-6">
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="bg-slate-50 border p-4 rounded-xl">
-                                <h4 class="font-bold text-xs uppercase mb-2"><i class="fa-solid fa-camera"></i> Kamera QR (Absensi & Nilai)</h4>
-                                <div id="qr-reader" class="w-full rounded border overflow-hidden"></div>
-                            </div>
-                            <div class="bg-slate-50 border p-4 rounded-xl">
-                                <h4 class="font-bold text-xs uppercase mb-2">Input Manual Username / Kode</h4>
-                                <textarea id="txt-import-code" rows="3" class="w-full p-2 border rounded text-xs font-mono" placeholder="Ketik S017 atau tempel kode..."></textarea>
-                                <button onclick="ScannerService.prosesImportKodeTeks()" class="mt-2 w-full bg-blue-600 text-white py-2 rounded text-xs font-semibold">Proses Input</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TAB 4: KOP -->
-                    <div id="tab-pengaturan" class="hidden p-5 flex-1 space-y-4">
-                        <h3 class="font-bold text-sm">Unggah Kop Sekolah</h3>
-                        <input type="file" id="file-kop-sekolah" accept="image/*" onchange="PrintService.previewKop(event)" class="text-xs">
-                        <div id="box-preview-kop" class="hidden border p-2 bg-white rounded max-w-xs">
-                            <img id="img-preview-kop" src="" class="max-h-20 mx-auto">
+                        <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl flex flex-col">
+                            <h4 class="font-bold text-xs uppercase text-slate-300 mb-3">Input Manual Username / Kode</h4>
+                            <textarea id="txt-import-code" rows="4" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500" placeholder="Ketik S017 atau tempel kode QR hasil..."></textarea>
+                            <button onclick="ScannerService.prosesImportKodeTeks()" class="mt-3 w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-semibold transition">Proses Input</button>
                         </div>
                     </div>
                 </div>
-            </section>
 
-        </main>
-    </div>
+                <!-- TAB 4: KOP -->
+                <div id="tab-pengaturan" class="hidden p-6 flex-1 space-y-4">
+                    <h3 class="font-bold text-sm text-slate-200">Unggah Kop Sekolah untuk Dokumen Cetak</h3>
+                    <input type="file" id="file-kop-sekolah" accept="image/*" onchange="PrintService.previewKop(event)" class="text-xs text-slate-400">
+                    <div id="box-preview-kop" class="hidden border border-slate-800 p-3 bg-white rounded-xl max-w-xs mt-3">
+                        <img id="img-preview-kop" src="" class="max-h-20 mx-auto">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- PRINT ISOLATED AREA -->
+    </main>
+
+    <!-- PRINT ISOLATED AREA (Secara khusus untuk hasil cetak kertas) -->
     <div id="print-area"></div>
 
     <!-- Script Utama Terpisah -->
