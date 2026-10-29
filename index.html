@@ -65,7 +65,7 @@
                     <form id="form-login-siswa" onsubmit="handleLoginSiswa(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username / NISN</label>
-                            <input type="text" id="login-username" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Contoh: user01">
+                            <input type="text" id="login-username" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Contoh: S001">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password</label>
@@ -229,7 +229,7 @@
                         </span>
                         <div>
                             <h2 class="font-bold text-slate-800 text-base">Dashboard Manajemen Ujian</h2>
-                            <p class="text-xs text-slate-500">Rekapitulasi Nilai & Manajemen 36 Siswa</p>
+                            <p class="text-xs text-slate-500">Rekapitulasi Nilai & Manajemen Siswa (Format S001, S002, dst.)</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -256,7 +256,7 @@
                     <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
                         <button onclick="switchAdminTab('tab-rekap')" id="btn-tab-rekap" class="px-5 py-3 border-b-2 border-blue-600 text-blue-600 bg-white">Rekapitulasi Nilai</button>
                         <button onclick="switchAdminTab('tab-siswa')" id="btn-tab-siswa" class="px-5 py-3 text-slate-600 hover:text-slate-800">Daftar Akun Siswa</button>
-                        <button onclick="switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Scan QR Hasil & Kehadiran</button>
+                        <button onclick="switchAdminTab('tab-import')" id="btn-tab-import" class="px-5 py-3 text-slate-600 hover:text-slate-800">Scan QR Absensi / Nilai</button>
                         <button onclick="switchAdminTab('tab-pengaturan')" id="btn-tab-pengaturan" class="px-5 py-3 text-slate-600 hover:text-slate-800">Pengaturan Kop Sekolah</button>
                     </div>
 
@@ -272,7 +272,7 @@
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
                                     <th class="p-2.5 border">No</th>
-                                    <th class="p-2.5 border">NISN</th>
+                                    <th class="p-2.5 border">NISN / Username</th>
                                     <th class="p-2.5 border">Nama Siswa</th>
                                     <th class="p-2.5 border">Benar</th>
                                     <th class="p-2.5 border">Salah</th>
@@ -293,7 +293,7 @@
                                     <h4 class="font-bold text-xs uppercase text-slate-800 mb-1 flex items-center gap-1.5">
                                         <i class="fa-solid fa-file-csv text-emerald-600"></i> Unggah Daftar Siswa Kolektif (CSV)
                                     </h4>
-                                    <p class="text-[11px] text-slate-500 mb-3">Unggah sekaligus daftar 36 siswa menggunakan file CSV.</p>
+                                    <p class="text-[11px] text-slate-500 mb-3">Unggah daftar siswa (S001, S002, dst.) menggunakan file CSV.</p>
                                     <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
                                 </div>
                                 <div class="flex gap-2">
@@ -309,11 +309,11 @@
                             <div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col justify-between">
                                 <div>
                                     <h4 class="font-bold text-xs uppercase text-slate-800 mb-2 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-user-plus text-blue-600"></i> Tambah Siswa Satuan / Auto 36
+                                        <i class="fa-solid fa-user-plus text-blue-600"></i> Tambah Siswa Satuan / Auto S001-S036
                                     </h4>
                                     <form id="form-tambah-siswa" onsubmit="tambahSiswaManual(event)" class="space-y-2 mb-3">
                                         <div class="grid grid-cols-3 gap-2">
-                                            <input type="text" id="add-username" placeholder="Username" required class="px-2.5 py-1.5 border rounded text-xs">
+                                            <input type="text" id="add-username" placeholder="Username (S001)" required class="px-2.5 py-1.5 border rounded text-xs">
                                             <input type="text" id="add-password" placeholder="Password" required class="px-2.5 py-1.5 border rounded text-xs">
                                             <input type="text" id="add-nama" placeholder="Nama Lengkap" required class="px-2.5 py-1.5 border rounded text-xs">
                                         </div>
@@ -323,7 +323,7 @@
                                     </form>
                                 </div>
                                 <button onclick="generateAuto36Siswa()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Auto Generate Default 36 Siswa
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Auto Generate S001 s.d S036
                                 </button>
                             </div>
                         </div>
@@ -352,24 +352,26 @@
                         </div>
                     </div>
 
-                    <!-- TAB 3: SCAN QR HASIL & ABSENSI -->
+                    <!-- TAB 3: SCAN QR ABSENSI & HASIL -->
                     <div id="tab-import" class="hidden p-5 flex-1 space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
                             <!-- SCANNER CAMERA INTEGRATED -->
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                <h4 class="font-bold text-xs uppercase text-slate-700 mb-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-camera"></i> Scan Kamera (Nilai & Absensi)
+                                <h4 class="font-bold text-xs uppercase text-slate-700 mb-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-camera"></i> Scan Kamera (Absensi & Nilai)
                                 </h4>
+                                <p class="text-[11px] text-slate-500 mb-3">Kamera dapat membaca QR Username (misal: S001) untuk Absensi, atau QR Hasil Ujian.</p>
                                 <div id="qr-reader" class="w-full rounded-lg overflow-hidden border"></div>
                                 <div id="qr-reader-results" class="mt-2 text-xs text-emerald-600 font-semibold"></div>
                             </div>
 
                             <div class="space-y-4">
                                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                    <h4 class="font-bold text-xs uppercase text-slate-700 mb-2">Input Teks Kode Mandiri</h4>
-                                    <textarea id="txt-import-code" rows="3" class="w-full p-2 border rounded text-xs font-mono" placeholder="Paste kode teks dari HP siswa di sini..."></textarea>
+                                    <h4 class="font-bold text-xs uppercase text-slate-700 mb-1">Input Teks Kode Mandiri / Username</h4>
+                                    <p class="text-[11px] text-slate-500 mb-2">Ketik langsung Username (misal: S001) untuk Absensi Cepat atau tempel Kode Hasil JSON.</p>
+                                    <textarea id="txt-import-code" rows="3" class="w-full p-2 border rounded text-xs font-mono" placeholder="Masukkan Username (S001) atau Kode Hasil..."></textarea>
                                     <button onclick="prosesImportKodeTeks()" class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-xs font-semibold">
-                                        Proses Kode Hasil / Absensi
+                                        Proses Absensi / Hasil
                                     </button>
                                 </div>
 
@@ -486,14 +488,16 @@
 
         if(daftarSiswa.length === 0) initDefault36Siswa();
 
+        // MERUBAH DEFAULT FORMAT UNTUK S001 S.D S036
         function initDefault36Siswa() {
             daftarSiswa = [];
             for(let i=1; i<=36; i++) {
-                let num = i < 10 ? '0' + i : '' + i;
+                let num = i < 10 ? '00' + i : (i < 100 ? '0' + i : '' + i);
+                let u = 'S' + num;
                 daftarSiswa.push({
-                    username: 'user' + num,
-                    password: 'pass' + num,
-                    nama: 'Siswa Peserta ' + num,
+                    username: u,
+                    password: 'pass' + i,
+                    nama: 'Siswa Peserta ' + i,
                     kehadiran: 'Belum Hadir',
                     status: 'Belum Ujian'
                 });
@@ -513,10 +517,10 @@
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
 
-            const found = daftarSiswa.find(s => s.username === u && s.password === p);
+            const found = daftarSiswa.find(s => s.username.toUpperCase() === u.toUpperCase() && s.password === p);
             if(!found) return alert("Username atau Password salah!");
 
-            const rekapExist = rekapNilai.find(r => r.username === u);
+            const rekapExist = rekapNilai.find(r => r.username.toUpperCase() === u.toUpperCase());
             if(rekapExist) return alert("Anda sudah menyelesaikan ujian ini dengan nilai: " + rekapExist.score);
 
             activeUser = found;
@@ -663,11 +667,11 @@
                 waktu: new Date().toLocaleString('id-ID')
             };
 
-            rekapNilai = rekapNilai.filter(r => r.username !== activeUser.username);
+            rekapNilai = rekapNilai.filter(r => r.username.toUpperCase() !== activeUser.username.toUpperCase());
             rekapNilai.push(payload);
             localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
 
-            let sObj = daftarSiswa.find(s => s.username === activeUser.username);
+            let sObj = daftarSiswa.find(s => s.username.toUpperCase() === activeUser.username.toUpperCase());
             if(sObj) {
                 sObj.status = "Selesai (" + score + ")";
                 localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
@@ -726,7 +730,7 @@
                 tbodyRekap.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="p-2.5 border">${i+1}</td>
-                        <td class="p-2.5 border font-mono">${r.username}</td>
+                        <td class="p-2.5 border font-mono font-bold">${r.username}</td>
                         <td class="p-2.5 border font-semibold">${r.nama}</td>
                         <td class="p-2.5 border text-emerald-600 font-bold">${r.benar}</td>
                         <td class="p-2.5 border text-rose-600 font-bold">${r.salah}</td>
@@ -743,7 +747,7 @@
                 tbodySiswa.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b">
                         <td class="p-2.5 border">${i+1}</td>
-                        <td class="p-2.5 border font-mono">${s.username}</td>
+                        <td class="p-2.5 border font-mono font-bold">${s.username}</td>
                         <td class="p-2.5 border font-mono text-slate-500">${s.password}</td>
                         <td class="p-2.5 border font-semibold">${s.nama}</td>
                         <td class="p-2.5 border text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.kehadiran&&s.kehadiran!=='Belum Hadir'?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-500'}">${s.kehadiran || 'Belum Hadir'}</span></td>
@@ -757,7 +761,7 @@
             });
         }
 
-        // DUAL FUNCTION SCANNER (NILAI & ABSENSI)
+        // SCANNER DUAL FUNGSI (BISA MEMBACA USERNAME S001 ATAU PAYLOAD HASIL BASE64)
         let html5QrcodeScanner = null;
         function bukaScannerQR() {
             if(!html5QrcodeScanner) {
@@ -772,29 +776,58 @@
         }
 
         function prosesKodeTeks(codeStr) {
+            codeStr = codeStr.trim();
+            let parsedData = null;
+
+            // 1. CEK ATAU PARSE DARI DATA BASE64 / JSON HASIL UJIAN
             try {
-                const payload = JSON.parse(atob(codeStr));
-                if(payload.username) {
-                    let s = daftarSiswa.find(x => x.username === payload.username);
-                    if(s) {
-                        s.kehadiran = "Hadir (Scan " + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ")";
+                parsedData = JSON.parse(atob(codeStr));
+            } catch(e) {
+                try {
+                    parsedData = JSON.parse(codeStr);
+                } catch(err) {
+                    // Jika bukan JSON/Base64, anggap sebagai String Username Langsung (misal: S001)
+                    parsedData = { username: codeStr };
+                }
+            }
+
+            if(parsedData && parsedData.username) {
+                const u = parsedData.username.trim().toUpperCase();
+                let s = daftarSiswa.find(x => x.username.toUpperCase() === u);
+
+                if(s) {
+                    // Tanda Kehadiran
+                    s.kehadiran = "Hadir (" + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ")";
+                    localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+
+                    // Jika membawa data nilai ujian
+                    if(parsedData.score !== undefined) {
+                        rekapNilai = rekapNilai.filter(r => r.username.toUpperCase() !== u);
+                        rekapNilai.push({
+                            username: s.username,
+                            nama: s.nama,
+                            benar: parsedData.benar,
+                            salah: parsedData.salah,
+                            score: parsedData.score,
+                            status: parsedData.status,
+                            waktu: parsedData.waktu || new Date().toLocaleString('id-ID')
+                        });
+                        localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
+                        s.status = "Selesai (" + parsedData.score + ")";
                         localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
+                        alert(`BERHASIL: Absensi & Nilai Siswa ${s.nama} (${s.username}) Nilai: ${parsedData.score} Berhasil Dientri!`);
+                    } else {
+                        alert(`BERHASIL: Absensi Kehadiran Siswa ${s.nama} (${s.username}) Dicatat!`);
                     }
 
-                    if(payload.score !== undefined) {
-                        rekapNilai = rekapNilai.filter(r => r.username !== payload.username);
-                        rekapNilai.push(payload);
-                        localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
-                        if(s) s.status = "Selesai (" + payload.score + ")";
-                        localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
-                        alert(`BERHASIL: Absensi & Nilai ${payload.nama} (${payload.score}) terekam!`);
-                    } else {
-                        alert(`BERHASIL: Absensi Kehadiran ${payload.nama} terekam!`);
-                    }
                     document.getElementById('txt-import-code').value = '';
                     renderAdminTables();
+                } else {
+                    alert(`Username "${parsedData.username}" tidak ditemukan di daftar siswa!`);
                 }
-            } catch(e) { alert("Kode QR / Teks tidak valid!"); }
+            } else {
+                alert("Format QR / Teks tidak dikenali!");
+            }
         }
 
         // PENGATURAN KOP SEKOLAH
@@ -941,7 +974,7 @@
                     if(cols.length>=3) {
                         const u=cols[0].replace(/"/g,'').trim(), p=cols[1].replace(/"/g,'').trim(), n=cols[2].replace(/"/g,'').trim();
                         if(u&&p&&n) {
-                            daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                            daftarSiswa = daftarSiswa.filter(s => s.username.toUpperCase() !== u.toUpperCase());
                             daftarSiswa.push({ username: u, password: p, nama: n, kehadiran: 'Belum Hadir', status: 'Belum Ujian' });
                             count++;
                         }
@@ -960,7 +993,7 @@
             const p = document.getElementById('add-password').value.trim();
             const n = document.getElementById('add-nama').value.trim();
             if(u&&p&&n) {
-                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                daftarSiswa = daftarSiswa.filter(s => s.username.toUpperCase() !== u.toUpperCase());
                 daftarSiswa.push({ username: u, password: p, nama: n, kehadiran: 'Belum Hadir', status: 'Belum Ujian' });
                 localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
                 renderAdminTables();
@@ -969,7 +1002,7 @@
 
         function hapusSiswaTunggal(u) {
             if(confirm(`Hapus akun ${u}?`)) {
-                daftarSiswa = daftarSiswa.filter(s => s.username !== u);
+                daftarSiswa = daftarSiswa.filter(s => s.username.toUpperCase() !== u.toUpperCase());
                 localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
                 renderAdminTables();
             }
@@ -985,9 +1018,9 @@
 
         function resetStatusUjian(uname) {
             if(confirm(`Reset status ujian untuk ${uname}?`)) {
-                rekapNilai = rekapNilai.filter(r => r.username !== uname);
+                rekapNilai = rekapNilai.filter(r => r.username.toUpperCase() !== uname.toUpperCase());
                 localStorage.setItem('cbt_rekap', JSON.stringify(rekapNilai));
-                let s = daftarSiswa.find(s => s.username === uname);
+                let s = daftarSiswa.find(s => s.username.toUpperCase() === uname.toUpperCase());
                 if(s) s.status = "Belum Ujian";
                 localStorage.setItem('cbt_siswa', JSON.stringify(daftarSiswa));
                 renderAdminTables();
@@ -995,7 +1028,7 @@
         }
 
         function hapusNilai(uname) { resetStatusUjian(uname); }
-        function generateAuto36Siswa() { if(confirm("Generate ulang default 36 Akun Siswa?")) { initDefault36Siswa(); renderAdminTables(); } }
+        function generateAuto36Siswa() { if(confirm("Generate ulang default S001 s.d S036?")) { initDefault36Siswa(); renderAdminTables(); } }
         
         function exportExcelCSV() {
             let csv = "No,Username,Nama,Benar,Salah,Nilai,Status\n";
@@ -1008,11 +1041,11 @@
         }
 
         function downloadCSVTemplate() {
-            let csv = "username,password,nama\nuser01,pass01,Nama Siswa 1\nuser02,pass02,Nama Siswa 2\n";
+            let csv = "username,password,nama\nS001,pass1,Nama Siswa 1\nS002,pass2,Nama Siswa 2\nS003,pass3,Nama Siswa 3\n";
             const blob = new Blob([csv], { type: 'text/csv' });
             const a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob);
-            a.download = 'Template_Siswa.csv';
+            a.download = 'Template_Siswa_S001.csv';
             a.click();
         }
 
