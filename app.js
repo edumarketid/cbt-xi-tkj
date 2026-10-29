@@ -495,6 +495,7 @@ const App = {
         if(tabId === 'tab-import') ScannerService.init();
     },
 
+    // Render Tabel di Dashboard Admin (Sudah ditambahkan tombol Reset & Hapus Per Siswa)
     renderAdminTables() {
         const tbodyRekap = document.getElementById('tbl-body-rekap');
         tbodyRekap.innerHTML = this.rekapNilai.length === 0 ? `<tr><td colspan="8" class="text-center p-6 text-slate-500">Belum ada data nilai tersimpan.</td></tr>` : '';
@@ -508,13 +509,13 @@ const App = {
                     <td class="p-3 text-rose-400 font-bold">${r.salah}</td>
                     <td class="p-3 font-black text-sm text-white">${r.score}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${r.score>=75?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">${r.status}</span></td>
-                    <td class="p-3 text-center"><button onclick="App.resetUjian('${r.username}')" class="text-rose-400 hover:text-rose-300 transition"><i class="fa-solid fa-trash"></i></button></td>
+                    <td class="p-3 text-center"><button onclick="App.resetUjian('${r.username}')" title="Hapus Hasil Ujian" class="text-rose-400 hover:text-rose-300 transition"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>
             `;
         });
 
         const tbodySiswa = document.getElementById('tbl-body-siswa');
-        tbodySiswa.innerHTML = this.daftarSiswa.length === 0 ? `<tr><td colspan="7" class="text-center p-6 text-slate-500">Belum ada data siswa.</td></tr>` : '';
+        tbodySiswa.innerHTML = this.daftarSiswa.length === 0 ? `<tr><td colspan="7" class="text-center p-6 text-slate-500">Belum ada data siswa. Silakan unggah CSV atau generate otomatis.</td></tr>` : '';
         this.daftarSiswa.forEach((s, i) => {
             tbodySiswa.innerHTML += `
                 <tr class="hover:bg-slate-950 border-b border-slate-800/60 transition">
@@ -524,11 +525,47 @@ const App = {
                     <td class="p-3 font-semibold text-slate-200">${s.nama}</td>
                     <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${s.kehadiran&&s.kehadiran!=='Belum Hadir'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-slate-800 text-slate-400'}">${s.kehadiran || 'Belum Hadir'}</span></td>
                     <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-800 text-slate-300">${s.status || 'Belum Ujian'}</span></td>
-                    <td class="p-3 text-center"><button onclick="App.resetUjian('${s.username}')" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">Reset</button></td>
+                    <td class="p-3 text-center flex justify-center gap-1.5">
+                        <button onclick="App.resetUjian('${s.username}')" title="Reset Ujian" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2 py-1 rounded-lg text-[10px] font-bold transition">
+                            Reset
+                        </button>
+                        <button onclick="App.hapusSiswaPerSiswa('${s.username}')" title="Hapus Akun Siswa" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-2 py-1 rounded-lg text-[10px] font-bold transition">
+                            <i class="fa-solid fa-trash-can"></i> Hapus
+                        </button>
+                    </td>
                 </tr>
             `;
         });
     },
+
+    // 1. Fungsi Hapus Data Per Siswa
+    hapusSiswaPerSiswa(uname) {
+        const norm = Utils.normalizeUsername(uname);
+        if(confirm(`Yakin ingin menghapus akun siswa ${norm}? Data rekap nilai siswa ini juga akan terhapus.`)) {
+            // Hapus dari daftar siswa
+            this.daftarSiswa = this.daftarSiswa.filter(s => Utils.normalizeUsername(s.username) !== norm);
+            localStorage.setItem('cbt_siswa', JSON.stringify(this.daftarSiswa));
+
+            // Hapus juga rekap nilainya jika ada
+            this.rekapNilai = this.rekapNilai.filter(r => Utils.normalizeUsername(r.username) !== norm);
+            localStorage.setItem('cbt_rekap', JSON.stringify(this.rekapNilai));
+
+            this.renderAdminTables();
+        }
+    },
+
+    // 2. Fungsi Hapus Semua Data Siswa sekaligus
+    hapusSemuaSiswa() {
+        if(this.daftarSiswa.length === 0) return alert("Daftar siswa sudah kosong!");
+        if(confirm("PERINGATAN: Yakin ingin menghapus SELURUH data siswa? Semua akun siswa dan rekap nilai terkait akan dihapus permanen.")) {
+            this.daftarSiswa = [];
+            this.rekapNilai = [];
+            localStorage.removeItem('cbt_siswa');
+            localStorage.removeItem('cbt_rekap');
+            this.renderAdminTables();
+            alert("Semua data siswa berhasil dibersihkan!");
+        }
+    }
 
     generateAuto36Siswa(confirmReq = true) {
         if(!confirmReq || confirm("Generate ulang default 36 siswa (S001 - S036)?")) {

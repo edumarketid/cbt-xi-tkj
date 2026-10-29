@@ -254,42 +254,57 @@
                 </div>
 
                 <!-- TAB 2: SISWA -->
-                <div id="tab-siswa" class="hidden p-6 flex-1 space-y-6">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
-                            <div>
-                                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-400"></i> Unggah Daftar Siswa (CSV)</h4>
-                                <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-400 mb-3 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
-                            </div>
-                            <button onclick="App.unggahSiswaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition">Unggah CSV</button>
-                        </div>
+<div id="tab-siswa" class="hidden p-6 flex-1 space-y-6">
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div>
+                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-file-csv text-emerald-400"></i> Unggah Daftar Siswa (CSV)
+                </h4>
+                <input type="file" id="file-siswa-csv" accept=".csv" class="block w-full text-xs text-slate-400 mb-3 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700">
+            </div>
+            <button onclick="App.unggahSiswaCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition">Unggah CSV</button>
+        </div>
 
-                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
-                            <div>
-                                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i> Auto Generate S001-S036</h4>
-                                <p class="text-[11px] text-slate-500 mb-3">Buat otomatis 36 akun siswa bawaan lengkap.</p>
-                            </div>
-                            <button onclick="App.generateAuto36Siswa()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-semibold transition">Generate 36 Siswa</button>
-                        </div>
-                    </div>
+        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div>
+                <h4 class="font-bold text-xs uppercase text-slate-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i> Auto Generate S001-S036
+                </h4>
+                <p class="text-[11px] text-slate-500 mb-3">Buat otomatis 36 akun siswa bawaan lengkap.</p>
+            </div>
+            <button onclick="App.generateAuto36Siswa()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-semibold transition">Generate 36 Siswa</button>
+        </div>
+    </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-                                    <th class="p-3">No</th>
-                                    <th class="p-3">Username</th>
-                                    <th class="p-3">Password</th>
-                                    <th class="p-3">Nama Lengkap</th>
-                                    <th class="p-3 text-center">Kehadiran</th>
-                                    <th class="p-3 text-center">Status Ujian</th>
-                                    <th class="p-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-body-siswa"></tbody>
-                        </table>
-                    </div>
-                </div>
+    <!-- HEADER / ACTION BAR DI ATAS TABEL -->
+    <div class="flex justify-between items-center pt-2">
+        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-users text-indigo-400"></i> Daftar Peserta Ujian
+        </h3>
+        <button onclick="App.hapusSemuaSiswa()" class="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-trash-can"></i> Hapus Semua Data Siswa
+        </button>
+    </div>
+
+    <!-- TABEL DAFTAR SISWA -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                    <th class="p-3">No</th>
+                    <th class="p-3">Username</th>
+                    <th class="p-3">Password</th>
+                    <th class="p-3">Nama Lengkap</th>
+                    <th class="p-3 text-center">Kehadiran</th>
+                    <th class="p-3 text-center">Status Ujian</th>
+                    <th class="p-3 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-body-siswa"></tbody>
+        </table>
+    </div>
+</div>
 
                 <!-- TAB 3: SCANNER -->
                 <div id="tab-import" class="hidden p-6 flex-1 space-y-6">
